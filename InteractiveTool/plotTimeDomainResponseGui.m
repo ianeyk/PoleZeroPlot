@@ -14,6 +14,4 @@ function plotTimeDomainResponseGui()
     plot(timeAxes, ts, imag(timeResponse_numeric), 'r-');
     legend(timeAxes, "Real", "Imaginary");
     hold(timeAxes, "off");
-
-
 end
