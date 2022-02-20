@@ -1,0 +1,102 @@
+<deployment-project plugin="plugin.apptool" plugin-version="1.0">
+  <configuration build-checksum="4190863360" file="C:\dev\git\PoleZeroPlot\InteractiveTool\poleZeroTool.prj" location="C:\dev\git\PoleZeroPlot\InteractiveTool" name="poleZeroTool" target="target.mlapps" target-name="Package App">
+    <param.appname>poleZeroTool</param.appname>
+    <param.authnamewatermark>Ian Eykamp</param.authnamewatermark>
+    <param.email>ieykamp@olin.edu</param.email>
+    <param.company />
+    <param.icon />
+    <param.icons />
+    <param.summary>GUI for plotting the time response for a pole-zero plot in the s-domain</param.summary>
+    <param.description />
+    <param.screenshot>C:\Users\ieykamp\AppData\Local\Temp\tp1fadbce8_ef1c_4f0b_a240_6fe51e79d635.png</param.screenshot>
+    <param.version>1.0</param.version>
+    <param.products.name />
+    <param.products.id />
+    <param.products.version />
+    <param.platforms />
+    <param.output>C:\dev\git\PoleZeroPlot</param.output>
+    <param.guid>8504f841-3e8f-492e-8499-217f8a1790ed</param.guid>
+    <unset>
+      <param.company />
+      <param.icon />
+      <param.icons />
+      <param.description />
+      <param.version />
+      <param.products.name />
+      <param.products.id />
+      <param.products.version />
+      <param.platforms />
+    </unset>
+    <fileset.main>
+      <file>${PROJECT_ROOT}\poleZeroTool.mlapp</file>
+    </fileset.main>
+    <fileset.depfun>
+      <file>${PROJECT_ROOT}\findPoint.m</file>
+      <file>${PROJECT_ROOT}\outOfBounds.m</file>
+      <file>${PROJECT_ROOT}\PoleZeroApp.m</file>
+      <file>${PROJECT_ROOT}\toComplex.m</file>
+    </fileset.depfun>
+    <fileset.resources />
+    <fileset.package />
+    <build-deliverables>
+      <file location="C:\dev\git" name="PoleZeroPlot" optional="false">C:\dev\git\PoleZeroPlot</file>
+    </build-deliverables>
+    <workflow />
+    <matlab>
+      <root>C:\Program Files\MATLAB\R2021b</root>
+      <toolboxes>
+        <toolbox name="matlabcoder" />
+        <toolbox name="embeddedcoder" />
+        <toolbox name="gpucoder" />
+        <toolbox name="fixedpoint" />
+        <toolbox name="matlabhdlcoder" />
+        <toolbox name="neuralnetwork" />
+      </toolboxes>
+      <toolbox>
+        <matlabcoder>
+          <enabled>true</enabled>
+        </matlabcoder>
+      </toolbox>
+      <toolbox>
+        <embeddedcoder>
+          <enabled>true</enabled>
+        </embeddedcoder>
+      </toolbox>
+      <toolbox>
+        <gpucoder>
+          <enabled>true</enabled>
+        </gpucoder>
+      </toolbox>
+      <toolbox>
+        <fixedpoint>
+          <enabled>true</enabled>
+        </fixedpoint>
+      </toolbox>
+      <toolbox>
+        <matlabhdlcoder>
+          <enabled>true</enabled>
+        </matlabhdlcoder>
+      </toolbox>
+      <toolbox>
+        <neuralnetwork>
+          <enabled>true</enabled>
+        </neuralnetwork>
+      </toolbox>
+    </matlab>
+    <platform>
+      <unix>false</unix>
+      <mac>false</mac>
+      <windows>true</windows>
+      <win2k>false</win2k>
+      <winxp>false</winxp>
+      <vista>false</vista>
+      <linux>false</linux>
+      <solaris>false</solaris>
+      <osver>10.0</osver>
+      <os32>false</os32>
+      <os64>true</os64>
+      <arch>win64</arch>
+      <matlab>true</matlab>
+    </platform>
+  </configuration>
+</deployment-project>
