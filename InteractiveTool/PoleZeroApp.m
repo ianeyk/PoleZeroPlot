@@ -35,10 +35,10 @@ classdef PoleZeroApp
             ylim(app.poleZeroAxes, app.bounds(2, :));
             xline(app.poleZeroAxes, 0, 'k-');
             yline(app.poleZeroAxes, 0, 'k-');
-            xlim(app.timeAxes, app.timeSpan(1), app.timeSpan(2));
+            xlim(app.timeAxes, [app.timeSpan(1), app.timeSpan(2)]);
         end
 
-        function addZeroes();
+        function addZeroes(app);
             app.userStopped = false;
             while ~app.userStopped
                 zero = drawpoint(app.poleZeroAxes, "Color", "b", "DrawingArea", "unlimited");
@@ -49,16 +49,16 @@ classdef PoleZeroApp
                 app.zeroes(end + 1) = toComplex(zero.Position);
 
                 % add event listeners to the new ROI point
-                addlistener(zero,'MovingROI', @updateROI);
-                addlistener(zero,'ROIMoved', @updateROI);
-                addlistener(zero,'DeletingROI', @updateROI);
-                addlistener(zero,'ROIClicked', @updateROI);
+                addlistener(zero,'MovingROI', @app.updateROI);
+                addlistener(zero,'ROIMoved', @app.updateROI);
+                addlistener(zero,'DeletingROI', @app.updateROI);
+                addlistener(zero,'ROIClicked', @app.updateROI);
                 app.plotTimeDomainResponse();
                 end
             end
         end
 
-        function addPoles();
+        function addPoles(app);
             app.userStopped = false;
             while ~app.userStopped
                 pole = drawpoint(app.poleZeroAxes, "Color", "r", "DrawingArea", "unlimited");
@@ -69,29 +69,29 @@ classdef PoleZeroApp
                 app.poles(end + 1) = toComplex(pole.Position);
 
                 % add event listeners to the new ROI point
-                addlistener(pole,'MovingROI',@updateROI);
-                addlistener(pole,'ROIMoved',@updateROI);
-                addlistener(pole,'DeletingROI', @updateROI);
-                addlistener(pole,'ROIClicked', @updateROI);
+                addlistener(pole,'MovingROI',@app.updateROI);
+                addlistener(pole,'ROIMoved',@app.updateROI);
+                addlistener(pole,'DeletingROI', @app.updateROI);
+                addlistener(pole,'ROIClicked', @app.updateROI);
                 app.plotTimeDomainResponse();
                 end
             end
         end
 
-        function clearPoints()
+        function clearPoints(app)
             global zeroes poles poleZeroAxes;
             oldPoints = findobj(app.poleZeroAxes,'Type','images.roi.point');
             delete(oldPoints);
             app.zeroes = [];
             app.poles = [];
-            plotTimeDomainResponseGui();
+            app.plotTimeDomainResponse();
         end
 
-        function deletePoints()
+        function deletePoints(app)
             app.deletingMode = true;
         end
 
-        function stopActions()
+        function stopActions(app)
             % set all global modes to the off state
             deletingMode = false;
             userStopped = false;
@@ -115,10 +115,44 @@ classdef PoleZeroApp
             hold(app.timeAxes, "off");
         end
 
-        function outputArg = method1(obj,inputArg)
-            %METHOD1 Summary of this method goes here
-            %   Detailed explanation goes here
-            outputArg = obj.Property1 + inputArg;
+        function updateROI(app, src, evt)
+            evname = evt.EventName;
+            switch(evname)
+                case{'MovingROI'}
+                    updatePoints(src, false);
+                    disp("moving ROI")
+                case{'ROIMoved'}
+                    updatePoints(src, false);
+                    disp("moved ROI")
+                case{'DeletingROI'}
+                    updatePoints(src, true);
+                case{'ROIClicked'}
+                    % if a point is clicked, check if we are in deleting mode; if so, the click deletes the point
+                    if app.deletingMode
+                        updatePoints(src, true);
+                        delete(src);
+                    end
+            end
+        end
+
+        function updatePoints(app, src, deletePoint)
+            equalityThresh = 1e-4;
+            if src.Color == app.zeroColor
+                idx = findPoint(src.Position, app.zeroes);
+                if deletePoint
+                    app.zeroes(idx) = [];
+                else
+                    app.zeroes(idx) = toComplex(src.Position);
+                end
+            elseif src.Color == app.poleColor
+                idx = findPoint(src.Position, app.poles);
+                if deletePoint
+                    app.poles(idx) = [];
+                else
+                    app.poles(idx) = toComplex(src.Position);
+                end
+            end
+            app.plotTimeDomainResponse();
         end
     end
 end
