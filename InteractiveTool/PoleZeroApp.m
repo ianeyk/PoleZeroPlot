@@ -69,8 +69,8 @@ classdef PoleZeroApp
                 app.poles(end + 1) = toComplex(pole.Position);
 
                 % add event listeners to the new ROI point
-                addlistener(pole,'MovingROI',@app.updateROI);
-                addlistener(pole,'ROIMoved',@app.updateROI);
+                addlistener(pole,'MovingROI', @app.updateROI);
+                addlistener(pole,'ROIMoved', @app.updateROI);
                 addlistener(pole,'DeletingROI', @app.updateROI);
                 addlistener(pole,'ROIClicked', @app.updateROI);
                 app.plotTimeDomainResponse();
@@ -116,42 +116,46 @@ classdef PoleZeroApp
         end
 
         function updateROI(app, src, evt)
+            disp("reached this point")
             evname = evt.EventName;
             switch(evname)
                 case{'MovingROI'}
-                    updatePoints(src, false);
+                    app.updatePoints(src, evt, false);
                     disp("moving ROI")
                 case{'ROIMoved'}
-                    updatePoints(src, false);
+                    app.updatePoints(src, evt, false);
                     disp("moved ROI")
                 case{'DeletingROI'}
-                    updatePoints(src, true);
+                    app.updatePoints(src, evt, true);
                 case{'ROIClicked'}
                     % if a point is clicked, check if we are in deleting mode; if so, the click deletes the point
                     if app.deletingMode
-                        updatePoints(src, true);
+                        app.updatePoints(src, evt, true);
                         delete(src);
                     end
             end
         end
 
-        function updatePoints(app, src, deletePoint)
-            equalityThresh = 1e-4;
+        function updatePoints(app, src, evt, deletePoint)
+            src
             if src.Color == app.zeroColor
-                idx = findPoint(src.Position, app.zeroes);
+                idx = findPoint(evt.PreviousPosition, app.zeroes);
                 if deletePoint
                     app.zeroes(idx) = [];
                 else
                     app.zeroes(idx) = toComplex(src.Position);
                 end
             elseif src.Color == app.poleColor
-                idx = findPoint(src.Position, app.poles);
+                idx = findPoint(evt.PreviousPosition, app.poles);
                 if deletePoint
                     app.poles(idx) = [];
                 else
                     app.poles(idx) = toComplex(src.Position);
                 end
             end
+            app.zeroes
+            app.poles
+            deletePoint
             app.plotTimeDomainResponse();
         end
     end
