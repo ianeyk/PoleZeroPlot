@@ -1,4 +1,4 @@
-classdef PoleZeroApp
+classdef PoleZeroApp < handle
     % Class for storing data related to running the PoleZeroTool app
     %   Used as a container instead of passing a bunch of global variables
 
@@ -39,6 +39,8 @@ classdef PoleZeroApp
         end
 
         function addZeroes(app);
+            app
+            disp("adding Zeroes")
             app.userStopped = false;
             while ~app.userStopped
                 zero = drawpoint(app.poleZeroAxes, "Color", "b", "DrawingArea", "unlimited");
@@ -54,8 +56,12 @@ classdef PoleZeroApp
                 addlistener(zero,'DeletingROI', @app.updateROI);
                 addlistener(zero,'ROIClicked', @app.updateROI);
                 app.plotTimeDomainResponse();
+                disp("coming from addZeroes")
+                app
                 end
             end
+            app
+            disp("after adding zeroes ^^^")
         end
 
         function addPoles(app);
@@ -138,6 +144,8 @@ classdef PoleZeroApp
 
         function updatePoints(app, src, evt, deletePoint)
             src
+            app.zeroes
+            app.poles
             if src.Color == app.zeroColor
                 idx = findPoint(evt.PreviousPosition, app.zeroes);
                 if deletePoint
