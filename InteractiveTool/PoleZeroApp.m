@@ -147,17 +147,19 @@ classdef PoleZeroApp < handle
             app.zeroes
             app.poles
             if src.Color == app.zeroColor
-                idx = findPoint(evt.PreviousPosition, app.zeroes);
                 if deletePoint
+                    idx = findPoint(src.Position, app.zeroes);
                     app.zeroes(idx) = [];
                 else
+                    idx = findPoint(evt.PreviousPosition, app.zeroes);
                     app.zeroes(idx) = toComplex(src.Position);
                 end
             elseif src.Color == app.poleColor
-                idx = findPoint(evt.PreviousPosition, app.poles);
                 if deletePoint
+                    idx = findPoint(src.Position, app.poles);
                     app.poles(idx) = [];
                 else
+                    idx = findPoint(evt.PreviousPosition, app.poles);
                     app.poles(idx) = toComplex(src.Position);
                 end
             end
