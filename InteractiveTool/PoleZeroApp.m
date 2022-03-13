@@ -91,21 +91,22 @@ classdef PoleZeroApp < handle
                 addlistener(pole,'DeletingROI', @app.updateROI);
                 addlistener(pole,'ROIClicked', @app.updateROI);
                 app.plotTimeDomainResponse();
-                end
 
-                if app.conjugateMode
-                    % repeat the same process, but for the conjugate
-                    conjugatePosition = pole.Position .* [1, -1]; % complex conjugate
-                    conjugate = drawpoint(app.poleZeroAxes, "Color", "r", "DrawingArea", "unlimited", "Position", conjugatePosition);
-                    app.poles(end + 1) = toComplex(conjugatePosition);
+                    if app.conjugateMode
+                        % repeat the same process, but for the conjugate
+                        conjugatePosition = pole.Position .* [1, -1]; % complex conjugate
+                        conjugate = drawpoint(app.poleZeroAxes, "Color", "r", "DrawingArea", "unlimited", "Position", conjugatePosition);
+                        app.poles(end + 1) = toComplex(conjugatePosition);
 
-                    % add event listeners to the new ROI point
-                    addlistener(conjugate,'MovingROI', @app.updateROI);
-                    addlistener(conjugate,'ROIMoved', @app.updateROI);
-                    addlistener(conjugate,'DeletingROI', @app.updateROI);
-                    addlistener(conjugate,'ROIClicked', @app.updateROI);
-                    app.plotTimeDomainResponse();
+                        % add event listeners to the new ROI point
+                        addlistener(conjugate,'MovingROI', @app.updateROI);
+                        addlistener(conjugate,'ROIMoved', @app.updateROI);
+                        addlistener(conjugate,'DeletingROI', @app.updateROI);
+                        addlistener(conjugate,'ROIClicked', @app.updateROI);
+                        app.plotTimeDomainResponse();
+                    end
                 end
+                app.poles
             end
         end
 
@@ -151,23 +152,63 @@ classdef PoleZeroApp < handle
             src
             app.zeroes
             app.poles
+
             if src.Color == app.zeroColor
-                if deletePoint
-                    idx = findPoint(src.Position, app.zeroes);
-                    app.zeroes(idx) = [];
-                else
-                    idx = findPoint(evt.PreviousPosition, app.zeroes);
-                    app.zeroes(idx) = toComplex(src.Position);
-                end
+                findFrom = app.zeroes;
             elseif src.Color == app.poleColor
-                if deletePoint
-                    idx = findPoint(src.Position, app.poles);
-                    app.poles(idx) = [];
-                else
-                    idx = findPoint(evt.PreviousPosition, app.poles);
-                    app.poles(idx) = toComplex(src.Position);
-                end
+                findFrom = app.poles;
             end
+
+            if deletePoint == "delete"
+                findWhat = src.Position;
+                changeTo = [];
+            else
+                findWhat = evt.PreviousPosition;
+                changeTo = toComplex(src.Position);
+                changeConjTo = toComplex(src.Position .* [1, -1]);
+            end
+
+            % update the values
+            idx = findPoint(findWhat, findFrom);
+
+            if src.Color == app.zeroColor
+                app.zeroes(idx) = changeTo;
+            elseif src.Color == app.poleColor
+                app.poles(idx) = changeTo;
+            end
+
+            % repeat for the conjugate
+            if src.Color == app.zeroColor
+                findFrom = app.zeroes;
+            elseif src.Color == app.poleColor
+                findFrom = app.poles;
+            end
+
+            idxConj = findPoint(findWhat .* [1, -1], findFrom);
+            if src.Color == app.zeroColor
+                app.zeroes(idxConj) = changeConjTo;
+            elseif src.Color == app.poleColor
+                app.poles(idxConj) = changeConjTo;
+            end
+
+
+            % if src.Color == app.zeroColor
+            %     if deletePoint == "delete"
+            %         idx = findPoint(src.Position, app.zeroes);
+            %         app.zeroes(idx) = [];
+            %     else
+            %         idx = findPoint(evt.PreviousPosition, app.zeroes);
+            %         app.zeroes(idx) = toComplex(src.Position);
+            %     end
+            % elseif src.Color == app.poleColor
+            %     if deletePoint == "delete"
+            %         idx = findPoint(src.Position, app.poles);
+            %         app.poles(idx) = [];
+            %     else
+            %         idx = findPoint(evt.PreviousPosition, app.poles);
+            %         app.poles(idx) = toComplex(src.Position);
+            %     end
+            % end
             app.zeroes
             app.poles
             deletePoint
@@ -179,17 +220,17 @@ classdef PoleZeroApp < handle
             evname = evt.EventName;
             switch(evname)
                 case{'MovingROI'}
-                    app.updatePoints(src, evt, false);
+                    app.updatePoints(src, evt, "no delete");
                     disp("moving ROI")
                 case{'ROIMoved'}
-                    app.updatePoints(src, evt, false);
+                    app.updatePoints(src, evt, "no delete");
                     disp("moved ROI")
                 case{'DeletingROI'}
-                    app.updatePoints(src, evt, true);
+                    app.updatePoints(src, evt, "delete");
                 case{'ROIClicked'}
                     % if a point is clicked, check if we are in deleting mode; if so, the click deletes the point
                     if app.deletingMode
-                        app.updatePoints(src, evt, true);
+                        app.updatePoints(src, evt, "delete");
                         delete(src);
                     end
             end
