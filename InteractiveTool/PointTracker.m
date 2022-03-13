@@ -51,41 +51,38 @@ classdef PointTracker < handle
             end
         end
 
-        function deletePoint(obj, src, evt)
-            type = src.UserData.type;
-            id = src.UserData.id;
-            if type == "zero"
-                obj.points.deleteZero(id);
-            elseif type == "pole"
-                obj.points.deletePole(id);
-            end
-
-            if obj.conjugateMode
+        function deletePoint(obj, src, evt, conjugate, type, id)
+            if conjugate
                 if type == "zero"
                     obj.conjugates.deleteZero(id);
                 elseif type == "pole"
                     obj.conjugates.deletePole(id);
                 end
+            else
+                if type == "zero"
+                    obj.points.deleteZero(id);
+                elseif type == "pole"
+                    obj.points.deletePole(id);
+                end
             end
         end
 
-        function movePoint(obj, src, evt)
-
-            if src.UserData.type == "zero"
-                idx = src.UserData.id;
-                obj.points.updateZero(idx, toComplex(src.Position));
-            elseif src.UserData.type == "pole"
-                idx = src.UserData.id;
-                obj.points.updatePole(idx, toComplex(src.Position));
-            end
-
-            if obj.conjugateMode
+        function movePoint(obj, src, evt, conjugate, flipSign)
+            if conjugate
                 if src.UserData.type == "zero"
                     idx = src.UserData.id;
-                    obj.conjugates.updateZero(idx, toComplex(src.Position .* [1, -1]));
+                    obj.conjugates.updateZero(idx, toComplex(src.Position .* flipSign));
                 elseif src.UserData.type == "pole"
                     idx = src.UserData.id;
-                    obj.conjugates.updatePole(idx, toComplex(src.Position .* [1, -1]));
+                    obj.conjugates.updatePole(idx, toComplex(src.Position .* flipSign));
+                end
+            else
+                if src.UserData.type == "zero"
+                    idx = src.UserData.id;
+                    obj.points.updateZero(idx, toComplex(src.Position .* flipSign));
+                elseif src.UserData.type == "pole"
+                    idx = src.UserData.id;
+                    obj.points.updatePole(idx, toComplex(src.Position .* flipSign));
                 end
             end
         end

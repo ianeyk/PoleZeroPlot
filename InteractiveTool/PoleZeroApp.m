@@ -86,20 +86,43 @@ classdef PoleZeroApp < handle
         end
 
         function deletePointIfClicked(app, src, evt)
-            app.deletingMode
             if app.deletingMode
-                app.pointTracker.deletePoint(src, evt);
-                app.plotTimeDomainResponse();
+                app.deletePoint(src, evt);
             end
         end
 
         function deletePoint(app, src, evt)
-            app.pointTracker.deletePoint(src, evt);
+            type = src.UserData.type;
+            id = src.UserData.id;
+            if app.conjugateMode
+                app.pointTracker.deletePoint(src, evt, false, type, id);
+                app.pointTracker.deletePoint(src, evt, true, type, id);
+            else
+                if src.UserData.isConjugate
+                    app.pointTracker.deletePoint(src, evt, false, type, id);
+                else
+                    app.pointTracker.deletePoint(src, evt, true, type, id);
+                end
+            end
             app.plotTimeDomainResponse();
         end
 
         function movePoint(app, src, evt)
-            app.pointTracker.movePoint(src, evt);
+            if app.conjugateMode
+                if src.UserData.isConjugate
+                    app.pointTracker.movePoint(src, evt, true, [1, 1]);
+                    app.pointTracker.movePoint(src, evt, false, [1, -1]);
+                else
+                    app.pointTracker.movePoint(src, evt, false, [1, 1]);
+                    app.pointTracker.movePoint(src, evt, true, [1, -1]);
+                end
+            else
+                if src.UserData.isConjugate
+                    app.pointTracker.movePoint(src, evt, true, [1, 1]);
+                else
+                    app.pointTracker.movePoint(src, evt, false, [1, 1]);
+                end
+            end
             app.plotTimeDomainResponse();
         end
 
