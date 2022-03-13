@@ -14,6 +14,7 @@ classdef PoleZeroApp < handle
         userStopped
         deletingMode
         conjugateMode
+        pointTracker
     end
 
     methods
@@ -29,6 +30,7 @@ classdef PoleZeroApp < handle
             app.userStopped = false;
             app.deletingMode = false;
             app.conjugateMode = true;
+            app.pointTracker = PointTracker();
             app.setupAxes()
         end
 
