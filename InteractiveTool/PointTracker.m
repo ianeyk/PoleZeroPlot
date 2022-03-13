@@ -69,23 +69,23 @@ classdef PointTracker < handle
             if type == "zero"
                 idx = obj.findPoints(oldPosition, obj.points.zeroes);
                 for id = idx
-                    obj.points.updateZero(toComplex(newPosition));
+                    obj.points.updateZero(idx, toComplex(newPosition));
                 end
             elseif type == "pole"
                 idx = obj.findPoints(oldPosition, obj.points.poles);
                 for id = idx
-                    obj.points.updatePole(toComplex(newPosition));
+                    obj.points.updatePole(idx, toComplex(newPosition));
                 end
             end
 
             if obj.conjugateMode
                 if type == "zero"
                     for id = idx
-                        obj.conjugates.updateZero(toComplex(newPosition)); % can use the same index because order is preserved
+                        obj.conjugates.updateZero(idx, toComplex(newPosition .* [1, -1])); % can use the same index because order is preserved
                     end
                 elseif type == "pole"
                     for id = idx
-                        obj.conjugates.updatePole(toComplex(newPosition)); % can use the same index because order is preserved
+                        obj.conjugates.updatePole(idx, toComplex(newPosition .* [1, -1])); % can use the same index because order is preserved
                     end
                 end
             end
@@ -93,7 +93,7 @@ classdef PointTracker < handle
 
         function idx = findPoints(obj, position, points)
             equalityThresh = 1e-4;
-            idx = (position(1) - real(points) < equalityThresh) & (position(2) - imag(points) < equalityThresh)
+            idx = find((position(1) - real(points) < equalityThresh) & (position(2) - imag(points) < equalityThresh));
         end
 
     end

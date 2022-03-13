@@ -39,22 +39,24 @@ classdef Points < handle
         function deleteZero(obj, idx)
             idx
             obj.zeroes(idx) = NaN;
+            delete(obj.zeroRois{idx});
             obj.zeroRois{idx} = NaN;
         end
 
         function deletePole(obj, idx)
             obj.poles(idx) = NaN;
+            delete(obj.poleRois{idx});
             obj.poleRois{idx} = NaN;
         end
 
         function updateZero(obj, idx, newValue)
             obj.zeroes(idx) = newValue;
-            obj.zeroRois{idx}.Position = newValue;
+            obj.zeroRois{idx}.Position = [real(newValue), imag(newValue)];
         end
 
         function updatePole(obj, idx, newValue)
             obj.poles(idx) = newValue;
-            obj.poleRois{idx}.Position = newValue;
+            obj.poleRois{idx}.Position = [real(newValue), imag(newValue)];
         end
 
     end
