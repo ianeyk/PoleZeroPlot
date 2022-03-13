@@ -9,8 +9,9 @@ classdef PoleZeroApp < handle
         poleZeroAxes
         timeSpan
         bounds
-        zeroColor
-        poleColor
+        zeroStruct
+        poleStruct
+        currentPointType
         userStopped
         deletingMode
         conjugateMode
@@ -23,15 +24,18 @@ classdef PoleZeroApp < handle
             app.timeSpan = [0, 5];
             app.poles = [];
             app.zeroes = [];
-            app.zeroColor = [0, 0, 1];
-            app.poleColor = [1, 0, 0];
+            app.zeroStruct.type = "zero";
+            app.poleStruct.type = "pole";
+            app.zeroStruct.color = [0, 0, 1];
+            app.poleStruct.color = [1, 0, 0];
             app.timeAxes = timeAxes;
             app.poleZeroAxes = poleZeroAxes;
             app.userStopped = false;
             app.deletingMode = false;
             app.conjugateMode = true;
+            app.currentPointType = "";
             app.pointTracker = PointTracker();
-            app.setupAxes()
+            app.setupAxes();
         end
 
         function setupAxes(app)
@@ -42,77 +46,143 @@ classdef PoleZeroApp < handle
             xlim(app.timeAxes, [app.timeSpan(1), app.timeSpan(2)]);
         end
 
-        function addZeroes(app);
-            disp("adding Zeroes")
+        function addPoints(app, typeStruct);
             app.userStopped = false;
             while ~app.userStopped
-                zero = drawpoint(app.poleZeroAxes, "Color", "b", "DrawingArea", "unlimited");
-                if ~isvalid(zero) || isempty(zero.Position) || outOfBounds(zero.Position, app.bounds)
-                    % End the loop
+                % pointRoi = app.pointTracker.addPoint(app.poleZeroAxes, typeStruct);
+                userData.type = typeStruct.type;
+                userData.id = app.pointTracker.idCount;
+                userData.isConjugate = false;
+
+                roi = drawpoint(app.poleZeroAxes, "Color", typeStruct.color, "DrawingArea", "unlimited", "UserData", userData);
+                if ~isvalid(roi) || isempty(roi.Position) || outOfBounds(roi.Position, app.bounds)
+                    % Deletet the last point and end the loop
                     app.userStopped = true;
                 else
-                    app.pointTracker.addPoint("zero", zero);
-                    app.zeroes(end + 1) = toComplex(zero.Position);
+                    app.pointTracker.addPoint(roi);
+                    app.addHandlers(roi);
 
-                    % add event listeners to the new ROI point
-                    addlistener(zero,'MovingROI', @app.updateROI);
-                    addlistener(zero,'ROIMoved', @app.updateROI);
-                    addlistener(zero,'DeletingROI', @app.updateROI);
-                    addlistener(zero,'ROIClicked', @app.updateROI);
+                    if app.conjugateMode
+                        conjPosition = roi.Position .* [1, -1];
+                        userData.isConjugate = true;
+                        roiConj = drawpoint(app.poleZeroAxes, "Color", typeStruct.color, "DrawingArea", "unlimited", ...
+                        "Position", conjPosition, "UserData", userData);
+                    else
+                        roiConj.Position = [NaN, NaN]; % create a generic struct that just contains the Position property
+                    end
+                    app.pointTracker.addPoint(roiConj);
+                    app.addHandlers(roiConj);
+
+                    % only if not rejected
+                    app.pointTracker.idCount = app.pointTracker.idCount + 1;
                     app.plotTimeDomainResponse();
-
-                    if app.conjugateMode
-                        % repeat the same process, but for the conjugate
-                        conjugatePosition = zero.Position .* [1, -1]; % complex conjugate
-                        conjugate = drawpoint(app.poleZeroAxes, "Color", "b", "DrawingArea", "unlimited", "Position", conjugatePosition);
-                        app.zeroes(end + 1) = toComplex(conjugatePosition);
-
-                        % add event listeners to the new ROI point
-                        addlistener(conjugate,'MovingROI', @app.updateROI);
-                        addlistener(conjugate,'ROIMoved', @app.updateROI);
-                        addlistener(conjugate,'DeletingROI', @app.updateROI);
-                        addlistener(conjugate,'ROIClicked', @app.updateROI);
-                        app.plotTimeDomainResponse();
-                    end
                 end
             end
         end
 
-        function addPoles(app);
-            app.userStopped = false;
-            while ~app.userStopped
-                pole = drawpoint(app.poleZeroAxes, "Color", "r", "DrawingArea", "unlimited");
-                if ~isvalid(pole) || isempty(pole.Position) || outOfBounds(pole.Position, app.bounds)
-                    % End the loop
-                    app.userStopped = true;
-                else
-                app.poles(end + 1) = toComplex(pole.Position);
-                app.pointTracker.addPoint("pole", pole);
+        function callFunctionThenUpdatePlot(app, func)
+            func();
+            app.plotTimeDomainResponse();
+        end
 
-                % add event listeners to the new ROI point
-                addlistener(pole,'MovingROI', @app.updateROI);
-                addlistener(pole,'ROIMoved', @app.updateROI);
-                addlistener(pole,'DeletingROI', @app.updateROI);
-                addlistener(pole,'ROIClicked', @app.updateROI);
+        function deletePointIfClicked(app, src, evt)
+            app.deletingMode
+            if app.deletingMode
+                app.pointTracker.deletePoint(src, evt);
                 app.plotTimeDomainResponse();
-
-                    if app.conjugateMode
-                        % repeat the same process, but for the conjugate
-                        conjugatePosition = pole.Position .* [1, -1]; % complex conjugate
-                        conjugate = drawpoint(app.poleZeroAxes, "Color", "r", "DrawingArea", "unlimited", "Position", conjugatePosition);
-                        app.poles(end + 1) = toComplex(conjugatePosition);
-
-                        % add event listeners to the new ROI point
-                        addlistener(conjugate,'MovingROI', @app.updateROI);
-                        addlistener(conjugate,'ROIMoved', @app.updateROI);
-                        addlistener(conjugate,'DeletingROI', @app.updateROI);
-                        addlistener(conjugate,'ROIClicked', @app.updateROI);
-                        app.plotTimeDomainResponse();
-                    end
-                end
-                app.poles
             end
         end
+
+        function deletePoint(app, src, evt)
+            app.pointTracker.deletePoint(src, evt);
+            app.plotTimeDomainResponse();
+        end
+
+        function movePoint(app, src, evt)
+            app.pointTracker.movePoint(src, evt);
+            app.plotTimeDomainResponse();
+        end
+
+        function addHandlers(app, roi)
+            addlistener(roi, 'MovingROI',   @app.movePoint);
+            addlistener(roi, 'ROIMoved',    @app.movePoint);
+            addlistener(roi, 'DeletingROI', @app.deletePoint);
+            addlistener(roi, 'ROIClicked',  @app.deletePointIfClicked);
+        end
+
+
+
+        % function addZeroes(app);
+        %     disp("adding Zeroes")
+        %     app.userStopped = false;
+        %     while ~app.userStopped
+        %         zero = drawpoint(app.poleZeroAxes, "Color", "b", "DrawingArea", "unlimited");
+        %         if ~isvalid(zero) || isempty(zero.Position) || outOfBounds(zero.Position, app.bounds)
+        %             % End the loop
+        %             app.userStopped = true;
+        %         else
+        %             app.pointTracker.addPoint("zero", zero);
+        %             % app.zeroes(end + 1) = toComplex(zero.Position);
+
+        %             % add event listeners to the new ROI point
+        %             addlistener(zero,'MovingROI', @app.updateROI);
+        %             addlistener(zero,'ROIMoved', @app.updateROI);
+        %             addlistener(zero,'DeletingROI', @app.updateROI);
+        %             addlistener(zero,'ROIClicked', @app.updateROI);
+        %             app.plotTimeDomainResponse();
+
+        %             % if app.conjugateMode
+        %             %     % repeat the same process, but for the conjugate
+        %                 conjugatePosition = zero.Position .* [1, -1]; % complex conjugate
+        %                 conjugate = drawpoint(app.poleZeroAxes, "Color", "b", "DrawingArea", "unlimited", "Position", conjugatePosition);
+        %             %     app.zeroes(end + 1) = toComplex(conjugatePosition);
+
+        %                 % add event listeners to the new ROI point
+        %                 addlistener(conjugate,'MovingROI', @app.updateROI);
+        %                 addlistener(conjugate,'ROIMoved', @app.updateROI);
+        %                 addlistener(conjugate,'DeletingROI', @app.updateROI);
+        %                 addlistener(conjugate,'ROIClicked', @app.updateROI);
+        %             % end
+        %             app.plotTimeDomainResponse();
+        %         end
+        %     end
+        % end
+
+        % function addPoles(app);
+        %     app.userStopped = false;
+        %     while ~app.userStopped
+        %         pole = drawpoint(app.poleZeroAxes, "Color", "r", "DrawingArea", "unlimited");
+        %         if ~isvalid(pole) || isempty(pole.Position) || outOfBounds(pole.Position, app.bounds)
+        %             % End the loop
+        %             app.userStopped = true;
+        %         else
+        %             app.pointTracker.addPoint("pole", pole);
+        %         % app.poles(end + 1) = toComplex(pole.Position);
+
+        %         % % add event listeners to the new ROI point
+        %         % addlistener(pole,'MovingROI', @app.updateROI);
+        %         % addlistener(pole,'ROIMoved', @app.updateROI);
+        %         % addlistener(pole,'DeletingROI', @app.updateROI);
+        %         % addlistener(pole,'ROIClicked', @app.updateROI);
+
+        %         %     if app.conjugateMode
+        %         %         % repeat the same process, but for the conjugate
+        %         %         conjugatePosition = pole.Position .* [1, -1]; % complex conjugate
+        %         %         conjugate = drawpoint(app.poleZeroAxes, "Color", "r", "DrawingArea", "unlimited", "Position", conjugatePosition);
+        %         %         app.poles(end + 1) = toComplex(conjugatePosition);
+
+        %         %         % add event listeners to the new ROI point
+        %         %         addlistener(conjugate,'MovingROI', @app.updateROI);
+        %         %         addlistener(conjugate,'ROIMoved', @app.updateROI);
+        %         %         addlistener(conjugate,'DeletingROI', @app.updateROI);
+        %         %         addlistener(conjugate,'ROIClicked', @app.updateROI);
+        %         %         app.plotTimeDomainResponse();
+        %         %     end
+        %             app.plotTimeDomainResponse();
+        %         end
+        %         % app.poles
+        %     end
+        % end
 
         function clearPoints(app)
             global zeroes poles poleZeroAxes;
@@ -120,7 +190,7 @@ classdef PoleZeroApp < handle
             delete(oldPoints);
             app.zeroes = [];
             app.poles = [];
-            pointTracker = PointTracker();
+            app.pointTracker = PointTracker();
             app.plotTimeDomainResponse();
         end
 
@@ -130,8 +200,8 @@ classdef PoleZeroApp < handle
 
         function stopActions(app)
             % set all global modes to the off state
-            deletingMode = false;
-            userStopped = false;
+            app.deletingMode = false;
+            app.userStopped = false;
         end
 
         function plotTimeDomainResponse(app)
@@ -275,6 +345,5 @@ classdef PoleZeroApp < handle
                     end
             end
         end
-
     end
 end
