@@ -13,6 +13,7 @@ classdef PoleZeroApp < handle
         poleColor
         userStopped
         deletingMode
+        conjugateMode
     end
 
     methods
@@ -27,6 +28,7 @@ classdef PoleZeroApp < handle
             app.poleZeroAxes = poleZeroAxes;
             app.userStopped = false;
             app.deletingMode = false;
+            app.conjugateMode = true;
             app.setupAxes()
         end
 
@@ -47,20 +49,30 @@ classdef PoleZeroApp < handle
                     % End the loop
                     app.userStopped = true;
                 else
-                app.zeroes(end + 1) = toComplex(zero.Position);
+                    app.zeroes(end + 1) = toComplex(zero.Position);
 
-                % add event listeners to the new ROI point
-                addlistener(zero,'MovingROI', @app.updateROI);
-                addlistener(zero,'ROIMoved', @app.updateROI);
-                addlistener(zero,'DeletingROI', @app.updateROI);
-                addlistener(zero,'ROIClicked', @app.updateROI);
-                app.plotTimeDomainResponse();
-                disp("coming from addZeroes")
-                app
+                    % add event listeners to the new ROI point
+                    addlistener(zero,'MovingROI', @app.updateROI);
+                    addlistener(zero,'ROIMoved', @app.updateROI);
+                    addlistener(zero,'DeletingROI', @app.updateROI);
+                    addlistener(zero,'ROIClicked', @app.updateROI);
+                    app.plotTimeDomainResponse();
+
+                    if app.conjugateMode
+                        % repeat the same process, but for the conjugate
+                        conjugatePosition = zero.Position .* [1, -1]; % complex conjugate
+                        conjugate = drawpoint(app.poleZeroAxes, "Color", "b", "DrawingArea", "unlimited", "Position", conjugatePosition);
+                        app.zeroes(end + 1) = toComplex(conjugatePosition);
+
+                        % add event listeners to the new ROI point
+                        addlistener(conjugate,'MovingROI', @app.updateROI);
+                        addlistener(conjugate,'ROIMoved', @app.updateROI);
+                        addlistener(conjugate,'DeletingROI', @app.updateROI);
+                        addlistener(conjugate,'ROIClicked', @app.updateROI);
+                        app.plotTimeDomainResponse();
+                    end
                 end
             end
-            app
-            disp("after adding zeroes ^^^")
         end
 
         function addPoles(app);
@@ -79,6 +91,20 @@ classdef PoleZeroApp < handle
                 addlistener(pole,'DeletingROI', @app.updateROI);
                 addlistener(pole,'ROIClicked', @app.updateROI);
                 app.plotTimeDomainResponse();
+                end
+
+                if app.conjugateMode
+                    % repeat the same process, but for the conjugate
+                    conjugatePosition = pole.Position .* [1, -1]; % complex conjugate
+                    conjugate = drawpoint(app.poleZeroAxes, "Color", "r", "DrawingArea", "unlimited", "Position", conjugatePosition);
+                    app.poles(end + 1) = toComplex(conjugatePosition);
+
+                    % add event listeners to the new ROI point
+                    addlistener(conjugate,'MovingROI', @app.updateROI);
+                    addlistener(conjugate,'ROIMoved', @app.updateROI);
+                    addlistener(conjugate,'DeletingROI', @app.updateROI);
+                    addlistener(conjugate,'ROIClicked', @app.updateROI);
+                    app.plotTimeDomainResponse();
                 end
             end
         end
@@ -117,6 +143,7 @@ classdef PoleZeroApp < handle
             hold(app.timeAxes, "on");
             plot(app.timeAxes, ts, imag(timeResponse_numeric), 'r-');
             legend(app.timeAxes, "Real", "Imaginary");
+            xlim(app.timeAxes, app.timeSpan);
             hold(app.timeAxes, "off");
         end
 
