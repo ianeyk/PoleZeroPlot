@@ -39,7 +39,6 @@ classdef PoleZeroApp < handle
         end
 
         function addZeroes(app);
-            app
             disp("adding Zeroes")
             app.userStopped = false;
             while ~app.userStopped
