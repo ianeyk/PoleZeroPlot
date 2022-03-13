@@ -149,69 +149,88 @@ classdef PoleZeroApp < handle
         end
 
         function updatePoints(app, src, evt, deletePoint)
-            src
-            app.zeroes
-            app.poles
+            % app.poles
+            % if src.Color == app.zeroColor
+            %     findFrom = app.zeroes;
+            % elseif src.Color == app.poleColor
+            %     findFrom = app.poles;
+            % end
 
-            if src.Color == app.zeroColor
-                findFrom = app.zeroes;
-            elseif src.Color == app.poleColor
-                findFrom = app.poles;
-            end
+            % if deletePoint == "delete"
+            %     findWhat = src.Position;
+            %     changeTo = [];
+            % else
+            %     findWhat = evt.PreviousPosition;
+            %     changeTo = toComplex(src.Position);
+            %     changeConjTo = toComplex(src.Position .* [1, -1]);
+            % end
 
-            if deletePoint == "delete"
-                findWhat = src.Position;
-                changeTo = [];
-            else
-                findWhat = evt.PreviousPosition;
-                changeTo = toComplex(src.Position);
-                changeConjTo = toComplex(src.Position .* [1, -1]);
-            end
-
-            % update the values
-            idx = findPoint(findWhat, findFrom);
-
-            if src.Color == app.zeroColor
-                app.zeroes(idx) = changeTo;
-            elseif src.Color == app.poleColor
-                app.poles(idx) = changeTo;
-            end
-
-            % repeat for the conjugate
-            if src.Color == app.zeroColor
-                findFrom = app.zeroes;
-            elseif src.Color == app.poleColor
-                findFrom = app.poles;
-            end
-
-            idxConj = findPoint(findWhat .* [1, -1], findFrom);
-            if src.Color == app.zeroColor
-                app.zeroes(idxConj) = changeConjTo;
-            elseif src.Color == app.poleColor
-                app.poles(idxConj) = changeConjTo;
-            end
-
+            % % update the values
+            % idx = findPoint(findWhat, findFrom);
 
             % if src.Color == app.zeroColor
-            %     if deletePoint == "delete"
-            %         idx = findPoint(src.Position, app.zeroes);
-            %         app.zeroes(idx) = [];
-            %     else
-            %         idx = findPoint(evt.PreviousPosition, app.zeroes);
-            %         app.zeroes(idx) = toComplex(src.Position);
-            %     end
+            %     app.zeroes(idx) = changeTo;
             % elseif src.Color == app.poleColor
-            %     if deletePoint == "delete"
-            %         idx = findPoint(src.Position, app.poles);
-            %         app.poles(idx) = [];
-            %     else
-            %         idx = findPoint(evt.PreviousPosition, app.poles);
-            %         app.poles(idx) = toComplex(src.Position);
-            %     end
+            %     app.poles(idx) = changeTo;
             % end
-            app.zeroes
-            app.poles
-            deletePoint
+
+            % % repeat for the conjugate
+            % if src.Color == app.zeroColor
+            %     findFrom = app.zeroes;
+            % elseif src.Color == app.poleColor
+            %     findFrom = app.poles;
+            % end
+
+            % findConj = findWhat .* [1, -1];
+            % idxConj = findPoint(findConj, findFrom);
+            % if src.Color == app.zeroColor
+            %     app.zeroes(idxConj) = changeConjTo;
+
+            % elseif src.Color == app.poleColor
+            %     app.poles(idxConj) = changeConjTo;
+            % end
+            % app.poles
+
+
+            if src.Color == app.zeroColor
+                if deletePoint == "delete"
+                    idx = findPoint(src.Position, app.zeroes);
+                    app.zeroes(idx) = [];
+                    % update conjugate
+                    if conjugateMode
+                        idx = findPoint(src.Position .* [1, -1], app.zeroes);
+                        app.zeroes(idx) = [];
+                    end
+                else
+                    idx = findPoint(evt.PreviousPosition, app.zeroes);
+                    app.zeroes(idx) = toComplex(src.Position);
+                    % update conjugate
+                    if conjugateMode
+                        idx = findPoint(evt.PreviousPosition .* [1, -1], app.zeroes);
+                        app.zeroes(idx) = toComplex(src.Position .* [1, -1]);
+                        % update ROI of conjugate
+                    end
+                end
+            elseif src.Color == app.poleColor
+                if deletePoint == "delete"
+                    idx = findPoint(src.Position, app.poles);
+                    app.poles(idx) = [];
+                    % update conjugate
+                    if conjugateMode
+                        idx = findPoint(src.Position .* [1, -1], app.poles);
+                        app.poles(idx) = [];
+                    end
+                else
+                    idx = findPoint(evt.PreviousPosition, app.poles);
+                    app.poles(idx) = toComplex(src.Position);
+                    % update conjugate
+                    if conjugateMode
+                        idx = findPoint(evt.PreviousPosition .* [1, -1], app.poles);
+                        app.poles(idx) = toComplex(src.Position .* [1, -1]);
+                        % update ROI of conjugate
+                    end
+                end
+            end
             app.plotTimeDomainResponse();
         end
 
