@@ -120,27 +120,6 @@ classdef PoleZeroApp < handle
             hold(app.timeAxes, "off");
         end
 
-        function updateROI(app, src, evt)
-            disp("reached this point")
-            evname = evt.EventName;
-            switch(evname)
-                case{'MovingROI'}
-                    app.updatePoints(src, evt, false);
-                    disp("moving ROI")
-                case{'ROIMoved'}
-                    app.updatePoints(src, evt, false);
-                    disp("moved ROI")
-                case{'DeletingROI'}
-                    app.updatePoints(src, evt, true);
-                case{'ROIClicked'}
-                    % if a point is clicked, check if we are in deleting mode; if so, the click deletes the point
-                    if app.deletingMode
-                        app.updatePoints(src, evt, true);
-                        delete(src);
-                    end
-            end
-        end
-
         function updatePoints(app, src, evt, deletePoint)
             src
             app.zeroes
@@ -167,5 +146,27 @@ classdef PoleZeroApp < handle
             deletePoint
             app.plotTimeDomainResponse();
         end
+
+        function updateROI(app, src, evt)
+            disp("reached this point")
+            evname = evt.EventName;
+            switch(evname)
+                case{'MovingROI'}
+                    app.updatePoints(src, evt, false);
+                    disp("moving ROI")
+                case{'ROIMoved'}
+                    app.updatePoints(src, evt, false);
+                    disp("moved ROI")
+                case{'DeletingROI'}
+                    app.updatePoints(src, evt, true);
+                case{'ROIClicked'}
+                    % if a point is clicked, check if we are in deleting mode; if so, the click deletes the point
+                    if app.deletingMode
+                        app.updatePoints(src, evt, true);
+                        delete(src);
+                    end
+            end
+        end
+
     end
 end
