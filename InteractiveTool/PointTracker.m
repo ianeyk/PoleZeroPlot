@@ -5,7 +5,8 @@ classdef PointTracker < handle
     properties
         points
         conjugates
-        idCount
+        zeroCount
+        poleCount
         conjugateMode
         deletingMode
     end
@@ -14,9 +15,26 @@ classdef PointTracker < handle
         function obj = PointTracker()
             obj.points = Points();
             obj.conjugates = Points();
-            obj.idCount = 1;
+            obj.zeroCount = 1;
+            obj.poleCount = 1;
             obj.conjugateMode = true;
             obj.deletingMode = false;
+        end
+
+        function incrementCount(obj, type)
+            if type == "zero"
+                obj.zeroCount = obj.zeroCount + 1;
+            elseif type == "pole"
+                obj.poleCount = obj.poleCount + 1;
+            end
+        end
+
+        function id = getCount(obj, type)
+            if type == "zero"
+                id = obj.zeroCount;
+            elseif type == "pole"
+                id = obj.poleCount;
+            end
         end
 
         function poles = getPoles(obj)

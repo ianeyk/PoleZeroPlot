@@ -51,7 +51,7 @@ classdef PoleZeroApp < handle
             while ~app.userStopped
                 % pointRoi = app.pointTracker.addPoint(app.poleZeroAxes, typeStruct);
                 userData.type = typeStruct.type;
-                userData.id = app.pointTracker.idCount;
+                userData.id = app.pointTracker.getCount(typeStruct.type);
                 userData.isConjugate = false;
 
                 roi = drawpoint(app.poleZeroAxes, "Color", typeStruct.color, "DrawingArea", "unlimited", "UserData", userData);
@@ -74,7 +74,7 @@ classdef PoleZeroApp < handle
                     app.addHandlers(roiConj);
 
                     % only if not rejected
-                    app.pointTracker.idCount = app.pointTracker.idCount + 1;
+                    app.pointTracker.incrementCount(typeStruct.type);
                     app.plotTimeDomainResponse();
                 end
             end

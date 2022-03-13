@@ -37,7 +37,6 @@ classdef Points < handle
         end
 
         function deleteZero(obj, idx)
-            idx
             obj.zeroes(idx) = NaN;
             delete(obj.zeroRois{idx});
             obj.zeroRois{idx} = NaN;
