@@ -114,26 +114,39 @@ classdef PoleZeroApp < handle
         end
 
         function movePointSnap(app, src, evt)
+            % MOVEPOINTSNAP helper function for event handling with snapping
             app.movePoint(src, evt, true);
         end
 
         function movePointNoSnap(app, src, evt)
+            % MOVEPOINTNOSNAP helper function for event handling without snapping
             app.movePoint(src, evt, false);
         end
 
         function movePoint(app, src, evt, snap)
+            % MOVEPOINT event handler for moving ROI. Also handles movement of conjugate pairs
+            % when conjugateMode is selected. The value of snap is passed through.
+            % For pointTracker.movePoint
+            % src and evt are objects passed by the event handler
+            % true/false is whether the the value being modified is the conjugate variable or not
+            % [1, 1] means the value should be preserved. [1, -1] means the value should be flipped
+            % snap determines the snapping behavior
             if app.conjugateMode
                 if src.UserData.isConjugate
+                    % move the conjugate; also make the non-conjugate mirrored
                     app.pointTracker.movePoint(src, evt, true, [1, 1], snap);
                     app.pointTracker.movePoint(src, evt, false, [1, -1], snap);
                 else
+                    % move the non-conjugate; also make the conjugate mirrored
                     app.pointTracker.movePoint(src, evt, false, [1, 1], snap);
                     app.pointTracker.movePoint(src, evt, true, [1, -1], snap);
                 end
             else
                 if src.UserData.isConjugate
+                    % only move the conjugate; do not mirror the non-conjugate
                     app.pointTracker.movePoint(src, evt, true, [1, 1], snap);
                 else
+                    % only move the non-conjugate; do not mirror the conjugate
                     app.pointTracker.movePoint(src, evt, false, [1, 1], snap);
                 end
             end
@@ -151,10 +164,12 @@ classdef PoleZeroApp < handle
         function clearPoints(app)
             % CLEARPOINTS removes all poles and zeroes from the pole-zero plot; resets poles and
             % zeroes in memory
+
+            % seek existing ROI objects and clear them
             oldPoints = findobj(app.poleZeroAxes,'Type','images.roi.point');
             delete(oldPoints);
-            app.pointTracker = PointTracker();
-            app.plotTimeDomainResponse();
+            app.pointTracker = PointTracker(); % reset poles and zeroes in memory
+            app.plotTimeDomainResponse(); % reset the time domain plot
         end
 
         function deletePoints(app)
