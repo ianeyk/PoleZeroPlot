@@ -71,7 +71,7 @@ classdef PoleZeroApp < handle
                 % initiate the drawpoint gui, which allows the user to create an ROI clicking on the screen
                 roi = drawpoint(app.poleZeroAxes, "Color", typeStruct.color, "DrawingArea", "unlimited", "UserData", userData);
 
-                if ~isvalid(roi) || isempty(roi.Position) || outOfBounds(roi.Position, app.bounds)
+                if ~isvalid(roi) || isempty(roi.Position) || app.outOfBounds(roi.Position)
                     % The user clicked outside the box. Discard the last point (by not continuing to the else statement)
                     % and exit the loop
                     app.userStopped = true;
@@ -209,6 +209,11 @@ classdef PoleZeroApp < handle
             % STOPACTIONS sets all global modes to the off state
             app.deletingMode = false;
             app.userStopped = false;
+        end
+
+        function out = outOfBounds(pos)
+            out = pos(1) < app.bounds(1, 1) || pos(1) > app.bounds(1, 2) || ...
+                  pos(2) < app.bounds(2, 1) || pos(2) > app.bounds(2, 2);
         end
 
         function plotTimeDomainResponse(app)
