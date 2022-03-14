@@ -1,14 +1,15 @@
 classdef Points < handle
-    % Points class for poles and zeroes
-    %   Detailed explanation goes here
+    % Points Class for storing lists of points and zeroes.
+    %   Also stores ROI objects for points and zeroes and can manipulate them (for example,
+    %   to change the location of an ROI when its conjugate pair is changed).
 
     properties
-        poles   % list of complex numbers
-        zeroes  % list of complex numbers
-        poleRois   % list of ROI objects
-        zeroRois   % list of ROI objects
-        snapMode
-        snapTolerance
+        zeroes        % 1 x n array of complex numbers representing zeroes
+        poles         % 1 x m array of complex numbers representing poles
+        zeroRois      % 1 x n array of ROI objects representing zeroes
+        poleRois      % 1 x m array of ROI objects representing poles
+        snapMode      % boolean flag for whether points should snap to the real axis
+        snapTolerance % distance from the real axis at which snapping should occur
     end
 
     methods
