@@ -40,11 +40,13 @@ classdef PointTracker < handle
         function poles = getPoles(obj)
             poles = [obj.points.poles, obj.conjugates.poles];
             poles(isnan(poles)) = [];
+            poles = unique(poles)
         end
 
         function zeroes = getZeroes(obj)
             zeroes = [obj.points.zeroes, obj.conjugates.zeroes];
             zeroes(isnan(zeroes)) = [];
+            zeroes = unique(zeroes)
         end
 
         function addPoint(obj, roi)
@@ -85,22 +87,22 @@ classdef PointTracker < handle
             end
         end
 
-        function movePoint(obj, src, evt, conjugate, flipSign)
+        function movePoint(obj, src, evt, conjugate, flipSign, snap)
             if conjugate
                 if src.UserData.type == "zero"
                     idx = src.UserData.id;
-                    obj.conjugates.updateZero(idx, toComplex(src.Position .* flipSign));
+                    obj.conjugates.updateZero(idx, toComplex(src.Position .* flipSign), snap);
                 elseif src.UserData.type == "pole"
                     idx = src.UserData.id;
-                    obj.conjugates.updatePole(idx, toComplex(src.Position .* flipSign));
+                    obj.conjugates.updatePole(idx, toComplex(src.Position .* flipSign), snap);
                 end
             else
                 if src.UserData.type == "zero"
                     idx = src.UserData.id;
-                    obj.points.updateZero(idx, toComplex(src.Position .* flipSign));
+                    obj.points.updateZero(idx, toComplex(src.Position .* flipSign), snap);
                 elseif src.UserData.type == "pole"
                     idx = src.UserData.id;
-                    obj.points.updatePole(idx, toComplex(src.Position .* flipSign));
+                    obj.points.updatePole(idx, toComplex(src.Position .* flipSign), snap);
                 end
             end
         end

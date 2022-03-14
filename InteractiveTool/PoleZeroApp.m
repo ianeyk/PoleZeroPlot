@@ -110,28 +110,36 @@ classdef PoleZeroApp < handle
             app.plotTimeDomainResponse();
         end
 
-        function movePoint(app, src, evt)
+        function movePointSnap(app, src, evt)
+            app.movePoint(src, evt, true);
+        end
+
+        function movePointNoSnap(app, src, evt)
+            app.movePoint(src, evt, false);
+        end
+
+        function movePoint(app, src, evt, snap)
             if app.conjugateMode
                 if src.UserData.isConjugate
-                    app.pointTracker.movePoint(src, evt, true, [1, 1]);
-                    app.pointTracker.movePoint(src, evt, false, [1, -1]);
+                    app.pointTracker.movePoint(src, evt, true, [1, 1], snap);
+                    app.pointTracker.movePoint(src, evt, false, [1, -1], snap);
                 else
-                    app.pointTracker.movePoint(src, evt, false, [1, 1]);
-                    app.pointTracker.movePoint(src, evt, true, [1, -1]);
+                    app.pointTracker.movePoint(src, evt, false, [1, 1], snap);
+                    app.pointTracker.movePoint(src, evt, true, [1, -1], snap);
                 end
             else
                 if src.UserData.isConjugate
-                    app.pointTracker.movePoint(src, evt, true, [1, 1]);
+                    app.pointTracker.movePoint(src, evt, true, [1, 1], snap);
                 else
-                    app.pointTracker.movePoint(src, evt, false, [1, 1]);
+                    app.pointTracker.movePoint(src, evt, false, [1, 1], snap);
                 end
             end
             app.plotTimeDomainResponse();
         end
 
         function addHandlers(app, roi)
-            addlistener(roi, 'MovingROI',   @app.movePoint);
-            addlistener(roi, 'ROIMoved',    @app.movePoint);
+            addlistener(roi, 'MovingROI',   @app.movePointNoSnap);
+            addlistener(roi, 'ROIMoved',    @app.movePointSnap);
             addlistener(roi, 'DeletingROI', @app.deletePoint);
             addlistener(roi, 'ROIClicked',  @app.deletePointIfClicked);
         end
