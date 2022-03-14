@@ -68,12 +68,19 @@ classdef Points < handle
             % UPDATEZERO Called when an ROI is being moved. Updates the complex position of the zero and
             % changes the Position property of the ROI to manipulate the other point in the conjugate pair.
             % snap acts as an override for snapMode, so that snapping only occurrs after an ROI object has been released.
+
+            % The complex position gets snapped no matter what, to preserve continuity in the timeDomainResponse plot
+            nonRoiValue = obj.snapToRealAxis(newValue);
             if snap
-                newValue = obj.snapToRealAxis(newValue);
+                % The ROI position is only snapped at the end of movement (when snap == true),
+                % to allow the ROI to leave the real axis
+                roiValue = obj.snapToRealAxis(newValue);
+            else
+                roiValue = newValue;
             end
             if ~isnan(obj.zeroes(idx))
-                obj.zeroes(idx) = newValue;
-                obj.zeroRois{idx}.Position = [real(newValue), imag(newValue)];
+                obj.zeroes(idx) = nonRoiValue;
+                obj.zeroRois{idx}.Position = [real(roiValue), imag(roiValue)];
             end
         end
 
@@ -81,12 +88,19 @@ classdef Points < handle
             % UPDATEPOLE Called when an ROI is being moved. Updates the complex position of the pole and
             % changes the Position property of the ROI to manipulate the other point in the conjugate pair.
             % snap acts as an override for snapMode, so that snapping only occurrs after an ROI object has been released.
+
+            % The complex position gets snapped no matter what, to preserve continuity in the timeDomainResponse plot
+            nonRoiValue = obj.snapToRealAxis(newValue);
             if snap
-                newValue = obj.snapToRealAxis(newValue);
+                % The ROI position is only snapped at the end of movement (when snap == true),
+                % to allow the ROI to leave the real axis
+                roiValue = obj.snapToRealAxis(newValue);
+            else
+                roiValue = newValue;
             end
             if ~isnan(obj.poles(idx))
-                obj.poles(idx) = newValue;
-                obj.poleRois{idx}.Position = [real(newValue), imag(newValue)];
+                obj.poles(idx) = nonRoiValue;
+                obj.poleRois{idx}.Position = [real(roiValue), imag(roiValue)];
             end
         end
 
