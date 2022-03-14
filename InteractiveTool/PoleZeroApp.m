@@ -1,5 +1,5 @@
 classdef PoleZeroApp < handle
-    % POLEZEROAPP is a class containing the functionality for running the PoleZeroTool app.
+    % POLEZEROAPP A class containing the functionality for running the PoleZeroTool app.
     %   Changes to the interface of the PoleZeroTool GUI essentially call various methods
     %   on POLEZEROAPP. The main purpose is to allow input of pole and zero locations and to
     %   store these values. Whenever a change is made, the method plotTimeDomainResponse is
@@ -8,21 +8,22 @@ classdef PoleZeroApp < handle
     %   update in real time (albeit with significant lag due to computational intensity).
 
     properties
-        timeAxes % axes object passed by PoleZeroTool app for the time response
-        poleZeroAxes % axes object passed by PoleZeroTool app for the pole-zero plot gui
-        timeSpan % 1 x 2 vector for time response
-        bounds % 2 x 2 vector for pole-zero plot bounds: [minX, maxX; minY, maxY]
-        zeroStruct % static struct for storing properties related to zeroes (color, name, etc.)
-        poleStruct % static struct for storing properties related to poles (color, name, etc.)
-        userStopped % boolean flag used for placing multiple poles and zeroes
-        deletingMode % boolean flag that tells us when the Delete Points button has been clicked
+        timeAxes      % axes object passed by PoleZeroTool app for the time response
+        poleZeroAxes  % axes object passed by PoleZeroTool app for the pole-zero plot gui
+        timeSpan      % 1 x 2 vector for time response
+        bounds        % 2 x 2 vector for pole-zero plot bounds: [minX, maxX; minY, maxY]
+        zeroStruct    % static struct for storing properties related to zeroes (color, name, etc.)
+        poleStruct    % static struct for storing properties related to poles (color, name, etc.)
+        userStopped   % boolean flag used for placing multiple poles and zeroes
+        deletingMode  % boolean flag that tells us when the Delete Points button has been clicked
         conjugateMode % boolean flag for whether conjugate points should be treated together
-        pointTracker % PointTracker object; essentially a list of the active poles and zeroes on
-                     % the pole-zero plot. Also contains functionality for conjugate pairs
+        pointTracker  % PointTracker object; essentially a list of the active poles and zeroes on
+                            % the pole-zero plot. Also contains functionality for conjugate pairs
     end
 
     methods
         function app = PoleZeroApp(poleZeroAxes, timeAxes)
+            % POLEZEROAPP Init function. Pass in axes handles from the PoleZeroTool app
             app.bounds = [-2, 2; -3, 3];
             app.timeSpan = [0, 5];
             app.zeroStruct.type = "zero";
@@ -34,12 +35,13 @@ classdef PoleZeroApp < handle
             app.userStopped = false;
             app.deletingMode = false;
             app.conjugateMode = true;
-            % app.currentPointType = "";
             app.pointTracker = PointTracker();
-            app.setupAxes();
+            app.setupAxes(); % initialize axes
         end
 
         function setupAxes(app)
+            % SETUPAXES Initialize pole-zero and time response plots by drawing horizontal and
+            % vertical axes on the pole-zero plot and setting axes limits on both plots.
             xlim(app.poleZeroAxes, app.bounds(1, :));
             ylim(app.poleZeroAxes, app.bounds(2, :));
             xline(app.poleZeroAxes, 0, 'k-');
