@@ -8,15 +8,12 @@ classdef PoleZeroApp < handle
     %   update in real time (albeit with significant lag due to computational intensity).
 
     properties
-        poles % PointTracker object; essentially a list of the active poles on the pole-zero plot
-        zeroes % PointTracker object; essentially a list of the active zeroes on the pole-zero plot
         timeAxes % axes object passed by PoleZeroTool app for the time response
         poleZeroAxes % axes object passed by PoleZeroTool app for the pole-zero plot gui
         timeSpan % 1 x 2 vector for time response
         bounds % 2 x 2 vector for pole-zero plot bounds: [minX, maxX; minY, maxY]
         zeroStruct % static struct for storing properties related to zeroes (color, name, etc.)
         poleStruct % static struct for storing properties related to poles (color, name, etc.)
-        % currentPointType
         userStopped % boolean flag used for placing multiple poles and zeroes
         deletingMode % boolean flag that tells us when the Delete Points button has been clicked
         conjugateMode % boolean flag for whether conjugate points should be treated together
@@ -28,8 +25,6 @@ classdef PoleZeroApp < handle
         function app = PoleZeroApp(poleZeroAxes, timeAxes)
             app.bounds = [-2, 2; -3, 3];
             app.timeSpan = [0, 5];
-            app.poles = [];
-            app.zeroes = [];
             app.zeroStruct.type = "zero";
             app.poleStruct.type = "pole";
             app.zeroStruct.color = [0, 0, 1];
@@ -151,11 +146,8 @@ classdef PoleZeroApp < handle
         end
 
         function clearPoints(app)
-            global zeroes poles poleZeroAxes;
             oldPoints = findobj(app.poleZeroAxes,'Type','images.roi.point');
             delete(oldPoints);
-            app.zeroes = [];
-            app.poles = [];
             app.pointTracker = PointTracker();
             app.plotTimeDomainResponse();
         end
@@ -172,11 +164,8 @@ classdef PoleZeroApp < handle
 
         function plotTimeDomainResponse(app)
             syms s t
-            % numerator = prod(s - app.zeroes);
-            % denominator = prod(s - app.poles);
             numerator = prod(s - app.pointTracker.getZeroes());
             denominator = prod(s - app.pointTracker.getPoles());
-            % two_zeros_three_poles=((s-z1).*(s-z2))./((s-p1).*(s-p2).*(s-p3));
             laplaceEquation = numerator ./ denominator;
 
             ts = linspace(app.timeSpan(1), app.timeSpan(2), 100);
