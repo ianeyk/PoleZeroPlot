@@ -211,7 +211,7 @@ classdef PoleZeroApp < handle
             app.userStopped = false;
         end
 
-        function out = outOfBounds(pos)
+        function out = outOfBounds(app, pos)
             out = pos(1) < app.bounds(1, 1) || pos(1) > app.bounds(1, 2) || ...
                   pos(2) < app.bounds(2, 1) || pos(2) > app.bounds(2, 2);
         end
