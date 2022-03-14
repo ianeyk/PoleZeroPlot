@@ -40,13 +40,13 @@ classdef PointTracker < handle
         function poles = getPoles(obj)
             poles = [obj.points.poles, obj.conjugates.poles];
             poles(isnan(poles)) = [];
-            poles = unique(poles)
+            poles = unique(poles);
         end
 
         function zeroes = getZeroes(obj)
             zeroes = [obj.points.zeroes, obj.conjugates.zeroes];
             zeroes(isnan(zeroes)) = [];
-            zeroes = unique(zeroes)
+            zeroes = unique(zeroes);
         end
 
         function addPoint(obj, roi)

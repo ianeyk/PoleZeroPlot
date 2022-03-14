@@ -28,7 +28,7 @@ classdef Points < handle
         end
 
         function addPole(obj, roi)
-            roi.Position = obj.snapToRealAxis(roi.Position)
+            roi.Position = obj.snapToRealAxis(roi.Position);
             obj.poles(end + 1) = toComplex(roi.Position);
             obj.poleRois{end + 1} = roi;
         end
