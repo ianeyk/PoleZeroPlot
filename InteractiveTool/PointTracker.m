@@ -1,6 +1,14 @@
 classdef PointTracker < handle
-    %UNTITLED2 Summary of this class goes here
-    %   Detailed explanation goes here
+    %POINTTRACKER Class that implements storing and tracking of poles and zeroes.
+    %   Three pieces of information need to be kept track of for each point.
+    %   1) Whether it is a pole or a zero.
+    %   2) Whether it is a conjugate or not.
+    %   3) The ROI associated with the pole or zero's location.
+    %   POINTTRACKER stores a two Points objects, which are basically lists of poles and zeroes --
+    %   one list for non-conjugates (called points), and one for conjugates (called conjugates).
+    %   POINTTRACKER ensures that everything that is done to points is also done to conjugates,
+    %   flipping the sign where needed. POINTTRACKER methods also take in string inputs for the
+    %   type parameter ("zero" or "pole") and breaks them out into separate methods on Points.
 
     properties
         points
