@@ -26,7 +26,7 @@ classdef PoleZeroApp < handle
 
     methods
         function app = PoleZeroApp(poleZeroAxes, timeAxes)
-            % POLEZEROAPP init function. Pass in axes handles from the PoleZeroTool app
+            % POLEZEROAPP Pass in axes handles from the PoleZeroTool app
             app.bounds = [-2, 2; -3, 3];
             app.timeSpan = [0, 5];
             app.zeroStruct.type = "zero";
