@@ -7,6 +7,9 @@ classdef PoleZeroApp < handle
     %   by the poles and zeroes. Using event handlers allows the time domain response to
     %   update in real time (albeit with significant lag due to computational intensity).
 
+    % Author: Ian Eykamp
+    % Date Modified: 3/14/2022
+
     properties
         timeAxes      % axes object passed by PoleZeroTool app for the time response
         poleZeroAxes  % axes object passed by PoleZeroTool app for the pole-zero plot gui
@@ -23,7 +26,7 @@ classdef PoleZeroApp < handle
 
     methods
         function app = PoleZeroApp(poleZeroAxes, timeAxes)
-            % POLEZEROAPP Init function. Pass in axes handles from the PoleZeroTool app
+            % POLEZEROAPP init function. Pass in axes handles from the PoleZeroTool app
             app.bounds = [-2, 2; -3, 3];
             app.timeSpan = [0, 5];
             app.zeroStruct.type = "zero";
@@ -40,7 +43,7 @@ classdef PoleZeroApp < handle
         end
 
         function setupAxes(app)
-            % SETUPAXES Initialize pole-zero and time response plots by drawing horizontal and
+            % SETUPAXES initializes pole-zero and time response plots by drawing horizontal and
             % vertical axes on the pole-zero plot and setting axes limits on both plots.
             xlim(app.poleZeroAxes, app.bounds(1, :));
             ylim(app.poleZeroAxes, app.bounds(2, :));
@@ -50,6 +53,14 @@ classdef PoleZeroApp < handle
         end
 
         function addPoints(app, typeStruct);
+            % ADDPOINTS allows user to input new poles and zeroes using drawpoint, which is the ROI gui.
+            % Runs in a while loop until the user clicks outside the bounds or presses ESC. The pole or zero
+            % is determined by typeStruct, which is either app.zeroStruct or app.poleStruct (containing the
+            % type "pole" or "zero" and the color the ROI points). For each pole or zero that is created by
+            % the drawpoint gui, another ROI is created if conjugateMode is in effect. The new poles and
+            % zeroes are added to app.pointTracker, which ensures that points and conjugates are kept track
+            % of together.
+
             app.userStopped = false;
             while ~app.userStopped
                 % pointRoi = app.pointTracker.addPoint(app.poleZeroAxes, typeStruct);
@@ -86,27 +97,32 @@ classdef PoleZeroApp < handle
             end
         end
 
-        function callFunctionThenUpdatePlot(app, func)
-            func();
-            app.plotTimeDomainResponse();
-        end
-
         function deletePointIfClicked(app, src, evt)
+            % DELETEPOINTIFCLICKED helper function for checking deletingMode before deleting
             if app.deletingMode
                 app.deletePoint(src, evt);
             end
         end
 
         function deletePoint(app, src, evt)
+            % DELETEPOINT event handler for deleting ROI. Handles deletion of conjugate pairs
+            % For pointTracker.deletePoint
+            % src and evt are objects passed by the event handler
+            % true to move the conjugate variable; false for the non-conjugate
+            % type is "pole" or "zero", determined by the UserData of the ROI
+            % id is the index of the pole or zero, as stored in pointTracker
             type = src.UserData.type;
             id = src.UserData.id;
             if app.conjugateMode
+                % delete both the conjugate and non-conjugate
                 app.pointTracker.deletePoint(src, evt, false, type, id);
                 app.pointTracker.deletePoint(src, evt, true, type, id);
             else
                 if src.UserData.isConjugate
+                    % delete only the conjugate
                     app.pointTracker.deletePoint(src, evt, true, type, id);
                 else
+                    % delete only the non-conjugate
                     app.pointTracker.deletePoint(src, evt, false, type, id);
                 end
             end
@@ -128,7 +144,7 @@ classdef PoleZeroApp < handle
             % when conjugateMode is selected. The value of snap is passed through.
             % For pointTracker.movePoint
             % src and evt are objects passed by the event handler
-            % true/false is whether the the value being modified is the conjugate variable or not
+            % true to move the conjugate variable; false for the non-conjugate
             % [1, 1] means the value should be preserved. [1, -1] means the value should be flipped
             % snap determines the snapping behavior
             if app.conjugateMode
