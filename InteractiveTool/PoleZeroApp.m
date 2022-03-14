@@ -63,34 +63,46 @@ classdef PoleZeroApp < handle
 
             app.userStopped = false;
             while ~app.userStopped
-                % pointRoi = app.pointTracker.addPoint(app.poleZeroAxes, typeStruct);
+                % stay in the loop until the user clicks outside the box or presses ESC. This will set app.userStopped to true
                 userData.type = typeStruct.type;
                 userData.id = app.pointTracker.getCount(typeStruct.type);
                 userData.isConjugate = false;
 
+                % initiate the drawpoint gui, which allows the user to create an ROI clicking on the screen
                 roi = drawpoint(app.poleZeroAxes, "Color", typeStruct.color, "DrawingArea", "unlimited", "UserData", userData);
+
                 if ~isvalid(roi) || isempty(roi.Position) || outOfBounds(roi.Position, app.bounds)
-                    % Deletet the last point and end the loop
+                    % The user clicked outside the box. Discard the last point (by not continuing to the else statement)
+                    % and exit the loop
                     app.userStopped = true;
                 else
+                    % Add the ROI to pointTracker and give it update handles
                     app.pointTracker.addPoint(roi);
                     app.addHandlers(roi);
 
+                    % Add a conjugate point if using conjugateMode
                     if app.conjugateMode
                         conjPosition = roi.Position .* [1, -1];
                         userData.isConjugate = true;
-                        roiConj = drawpoint(app.poleZeroAxes, "Color", typeStruct.color, "DrawingArea", "unlimited", ...
-                        "Position", conjPosition, "UserData", userData);
+
+                        % Add a conjugate point by passing the "Position", [x y] name-value pair to drawpoint. This skips
+                        % the gui but creates an ROI that is dragable and editable by the user.
+                        roiConj = drawpoint(app.poleZeroAxes, "Color", typeStruct.color, "DrawingArea", "unlimited", "Position", conjPosition, "UserData", userData);
+
+                        % Add the conjugate ROI to pointTracker and give it update handles
                         app.pointTracker.addPoint(roiConj);
                         app.addHandlers(roiConj);
                     else
-                        roiConj.Position = [NaN, NaN]; % create a generic struct that just contains the Position property
+                        % If not in conjugateMode, still create a placeholder ROI object and insert it into pointTracker.
+                        % This helps keep the indices of pointTracker matched between conjugates and non-conjugates.
+                        roiConj.Position = [NaN, NaN]; % create a generic struct that just contains the Position and userDaat properties
                         userData.isConjugate = true;
                         roiConj.UserData = userData;
                         app.pointTracker.addPoint(roiConj);
                     end
 
-                    % only if not rejected
+                    % increment the index of pointTracker now that both the point and the
+                    % conjugate or conjugate placeholder have been added
                     app.pointTracker.incrementCount(typeStruct.type);
                     app.plotTimeDomainResponse();
                 end
