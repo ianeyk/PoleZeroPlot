@@ -141,6 +141,7 @@ classdef PoleZeroApp < handle
         end
 
         function addHandlers(app, roi)
+            % ADDHANDLERS adds handlers for tracking position of ROI object
             addlistener(roi, 'MovingROI',   @app.movePointNoSnap);
             addlistener(roi, 'ROIMoved',    @app.movePointSnap);
             addlistener(roi, 'DeletingROI', @app.deletePoint);
@@ -148,6 +149,8 @@ classdef PoleZeroApp < handle
         end
 
         function clearPoints(app)
+            % CLEARPOINTS removes all poles and zeroes from the pole-zero plot; resets poles and
+            % zeroes in memory
             oldPoints = findobj(app.poleZeroAxes,'Type','images.roi.point');
             delete(oldPoints);
             app.pointTracker = PointTracker();
@@ -155,16 +158,20 @@ classdef PoleZeroApp < handle
         end
 
         function deletePoints(app)
+            % DELETEPOINTS called when the Delete Points button is pressed; sets deletingMode = true
             app.deletingMode = true;
         end
 
         function stopActions(app)
-            % set all global modes to the off state
+            % STOPACTIONS sets all global modes to the off state
             app.deletingMode = false;
             app.userStopped = false;
         end
 
         function plotTimeDomainResponse(app)
+            % PLOTTIMEDOMAINRESPONSE using existing poles and zeroes, creates a transfer function
+            % H(s) = zeroes / poles, and solves it for the time response. Plots the time response
+            % on the time response axes.
             syms s t
             numerator = prod(s - app.pointTracker.getZeroes());
             denominator = prod(s - app.pointTracker.getPoles());
