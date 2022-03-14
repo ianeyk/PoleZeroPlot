@@ -1,21 +1,27 @@
 classdef PoleZeroApp < handle
-    % Class for storing data related to running the PoleZeroTool app
-    %   Used as a container instead of passing a bunch of global variables
+    % POLEZEROAPP is a class containing the functionality for running the PoleZeroTool app.
+    %   Changes to the interface of the PoleZeroTool GUI essentially call various methods
+    %   on POLEZEROAPP. The main purpose is to allow input of pole and zero locations and to
+    %   store these values. Whenever a change is made, the method plotTimeDomainResponse is
+    %   called, which solves the inverse Laplace transform for the transfer function given
+    %   by the poles and zeroes. Using event handlers allows the time domain response to
+    %   update in real time (albeit with significant lag due to computational intensity).
 
     properties
-        poles
-        zeroes
-        timeAxes
-        poleZeroAxes
-        timeSpan
-        bounds
-        zeroStruct
-        poleStruct
-        currentPointType
-        userStopped
-        deletingMode
-        conjugateMode
-        pointTracker
+        poles % PointTracker object; essentially a list of the active poles on the pole-zero plot
+        zeroes % PointTracker object; essentially a list of the active zeroes on the pole-zero plot
+        timeAxes % axes object passed by PoleZeroTool app for the time response
+        poleZeroAxes % axes object passed by PoleZeroTool app for the pole-zero plot gui
+        timeSpan % 1 x 2 vector for time response
+        bounds % 2 x 2 vector for pole-zero plot bounds: [minX, maxX; minY, maxY]
+        zeroStruct % static struct for storing properties related to zeroes (color, name, etc.)
+        poleStruct % static struct for storing properties related to poles (color, name, etc.)
+        % currentPointType
+        userStopped % boolean flag used for placing multiple poles and zeroes
+        deletingMode % boolean flag that tells us when the Delete Points button has been clicked
+        conjugateMode % boolean flag for whether conjugate points should be treated together
+        pointTracker % PointTracker object; essentially a list of the active poles and zeroes on
+                     % the pole-zero plot. Also contains functionality for conjugate pairs
     end
 
     methods
@@ -33,7 +39,7 @@ classdef PoleZeroApp < handle
             app.userStopped = false;
             app.deletingMode = false;
             app.conjugateMode = true;
-            app.currentPointType = "";
+            % app.currentPointType = "";
             app.pointTracker = PointTracker();
             app.setupAxes();
         end
