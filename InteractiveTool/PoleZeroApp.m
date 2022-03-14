@@ -67,11 +67,14 @@ classdef PoleZeroApp < handle
                         userData.isConjugate = true;
                         roiConj = drawpoint(app.poleZeroAxes, "Color", typeStruct.color, "DrawingArea", "unlimited", ...
                         "Position", conjPosition, "UserData", userData);
+                        app.pointTracker.addPoint(roiConj);
+                        app.addHandlers(roiConj);
                     else
                         roiConj.Position = [NaN, NaN]; % create a generic struct that just contains the Position property
+                        userData.isConjugate = true;
+                        roiConj.UserData = userData;
+                        app.pointTracker.addPoint(roiConj);
                     end
-                    app.pointTracker.addPoint(roiConj);
-                    app.addHandlers(roiConj);
 
                     % only if not rejected
                     app.pointTracker.incrementCount(typeStruct.type);
@@ -99,9 +102,9 @@ classdef PoleZeroApp < handle
                 app.pointTracker.deletePoint(src, evt, true, type, id);
             else
                 if src.UserData.isConjugate
-                    app.pointTracker.deletePoint(src, evt, false, type, id);
-                else
                     app.pointTracker.deletePoint(src, evt, true, type, id);
+                else
+                    app.pointTracker.deletePoint(src, evt, false, type, id);
                 end
             end
             app.plotTimeDomainResponse();
