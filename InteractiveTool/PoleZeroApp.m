@@ -43,7 +43,7 @@ classdef PoleZeroApp < handle
         end
 
         function setupAxes(app)
-            % SETUPAXES initializes pole-zero and time response plots by drawing horizontal and
+            % SETUPAXES Initializes pole-zero and time response plots by drawing horizontal and
             % vertical axes on the pole-zero plot and setting axes limits on both plots.
             xlim(app.poleZeroAxes, app.bounds(1, :));
             ylim(app.poleZeroAxes, app.bounds(2, :));
@@ -53,7 +53,7 @@ classdef PoleZeroApp < handle
         end
 
         function addPoints(app, typeStruct);
-            % ADDPOINTS allows user to input new poles and zeroes using drawpoint, which is the ROI gui.
+            % ADDPOINTS Allows user to input new poles and zeroes using drawpoint, which is the ROI gui.
             % Runs in a while loop until the user clicks outside the bounds or presses ESC. The pole or zero
             % is determined by typeStruct, which is either app.zeroStruct or app.poleStruct (containing the
             % type "pole" or "zero" and the color the ROI points). For each pole or zero that is created by
@@ -110,14 +110,14 @@ classdef PoleZeroApp < handle
         end
 
         function deletePointIfClicked(app, src, evt)
-            % DELETEPOINTIFCLICKED helper function for checking deletingMode before deleting
+            % DELETEPOINTIFCLICKED Helper function for checking deletingMode before deleting
             if app.deletingMode
                 app.deletePoint(src, evt);
             end
         end
 
         function deletePoint(app, src, evt)
-            % DELETEPOINT event handler for deleting ROI. Handles deletion of conjugate pairs
+            % DELETEPOINT Event handler for deleting ROI. Handles deletion of conjugate pairs
             % For pointTracker.deletePoint
             % src and evt are objects passed by the event handler
             % true to move the conjugate variable; false for the non-conjugate
@@ -142,17 +142,17 @@ classdef PoleZeroApp < handle
         end
 
         function movePointSnap(app, src, evt)
-            % MOVEPOINTSNAP helper function for event handling with snapping
+            % MOVEPOINTSNAP Helper function for event handling with snapping
             app.movePoint(src, evt, true);
         end
 
         function movePointNoSnap(app, src, evt)
-            % MOVEPOINTNOSNAP helper function for event handling without snapping
+            % MOVEPOINTNOSNAP Helper function for event handling without snapping
             app.movePoint(src, evt, false);
         end
 
         function movePoint(app, src, evt, snap)
-            % MOVEPOINT event handler for moving ROI. Also handles movement of conjugate pairs
+            % MOVEPOINT Event handler for moving ROI. Also handles movement of conjugate pairs
             % when conjugateMode is selected. The value of snap is passed through.
             % For pointTracker.movePoint
             % src and evt are objects passed by the event handler
@@ -182,7 +182,7 @@ classdef PoleZeroApp < handle
         end
 
         function addHandlers(app, roi)
-            % ADDHANDLERS adds handlers for tracking position of ROI object
+            % ADDHANDLERS Adds handlers for tracking position of ROI object
             addlistener(roi, 'MovingROI',   @app.movePointNoSnap);
             addlistener(roi, 'ROIMoved',    @app.movePointSnap);
             addlistener(roi, 'DeletingROI', @app.deletePoint);
@@ -190,7 +190,7 @@ classdef PoleZeroApp < handle
         end
 
         function clearPoints(app)
-            % CLEARPOINTS removes all poles and zeroes from the pole-zero plot; resets poles and
+            % CLEARPOINTS Removes all poles and zeroes from the pole-zero plot; resets poles and
             % zeroes in memory
 
             % seek existing ROI objects and clear them
@@ -201,12 +201,12 @@ classdef PoleZeroApp < handle
         end
 
         function deletePoints(app)
-            % DELETEPOINTS called when the Delete Points button is pressed; sets deletingMode = true
+            % DELETEPOINTS Called when the Delete Points button is pressed; sets deletingMode = true
             app.deletingMode = true;
         end
 
         function stopActions(app)
-            % STOPACTIONS sets all global modes to the off state
+            % STOPACTIONS Sets all global modes to the off state
             app.deletingMode = false;
             app.userStopped = false;
         end
@@ -217,7 +217,7 @@ classdef PoleZeroApp < handle
         end
 
         function plotTimeDomainResponse(app)
-            % PLOTTIMEDOMAINRESPONSE using existing poles and zeroes, creates a transfer function
+            % PLOTTIMEDOMAINRESPONSE Using existing poles and zeroes, creates a transfer function
             % H(s) = zeroes / poles, and solves it for the time response. Plots the time response
             % on the time response axes.
             syms s t
