@@ -11,17 +11,17 @@ classdef PoleZeroApp < handle
     % Date Modified: 3/14/2022
 
     properties
-        timeAxes      % axes object passed by PoleZeroTool app for the time response
-        poleZeroAxes  % axes object passed by PoleZeroTool app for the pole-zero plot gui
-        timeSpan      % 1 x 2 vector for time response
-        bounds        % 2 x 2 vector for pole-zero plot bounds: [minX, maxX; minY, maxY]
-        zeroStruct    % static struct for storing properties related to zeroes (color, name, etc.)
-        poleStruct    % static struct for storing properties related to poles (color, name, etc.)
-        userStopped   % boolean flag used for placing multiple poles and zeroes
-        deletingMode  % boolean flag that tells us when the Delete Points button has been clicked
-        conjugateMode % boolean flag for whether conjugate points should be treated together
-        pointTracker  % PointTracker object; essentially a list of the active poles and zeroes on
-                            % the pole-zero plot. Also contains functionality for conjugate pairs
+        timeAxes     (1, 1) matlab.graphics.axis.Axes % axes object passed by PoleZeroTool app for the time response
+        poleZeroAxes (1, 1) matlab.graphics.axis.Axes % axes object passed by PoleZeroTool app for the pole-zero plot gui
+        timeSpan     (1, 2) double                    % 1 x 2 vector for time response
+        bounds       (2, 2) double                    % 2 x 2 vector for pole-zero plot bounds: [minX, maxX; minY, maxY]
+        zeroStruct   (1, 1) struct                    % static struct for storing properties related to zeroes (color, name, etc.)
+        poleStruct   (1, 1) struct                    % static struct for storing properties related to poles (color, name, etc.)
+        userStopped  (1, 1) logical                   % boolean flag used for placing multiple poles and zeroes
+        deletingMode (1, 1) logical                   % boolean flag that tells us when the Delete Points button has been clicked
+        conjugateMode(1, 1) logical                   % boolean flag for whether conjugate points should be treated together
+        pointTracker (1, 1) PointTracker              % PointTracker object; essentially a list of the active poles and zeroes on
+                                                        % the pole-zero plot. Also contains functionality for conjugate pairs
     end
 
     methods

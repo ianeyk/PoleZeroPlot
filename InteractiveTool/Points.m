@@ -1,22 +1,21 @@
 classdef Points < handle
-    % Points Class for storing lists of points or zeroes.
-    %   Also stores ROI objects and can manipulate them (for example, to change the location of an ROI
-    %   when its conjugate pair is changed).
+    % POINTS Class for storing lists of points or zeroes coupled with ROI objects.
+    %   Points are stored as complex numbers. POINTS ensures that anything done to a point
+    %   is done to both the complex value and the ROI. POINTS also manipulates
+    %   ROI objects to change their location when a conjugate point is changed.
 
     properties
-        points        % 1 x n array of complex numbers representing poles or zeroes
-        rois          % 1 x n cell array of ROI objects representing poles or zeroes
-        snapMode      % boolean flag for whether points should snap to the real axis. This is controlled
-                      % directly by the poleZeroTool app.
-        snapTolerance % distance from the real axis at which snapping should occur
+        points        (1, :) double  % 1 x n array of complex numbers representing poles or zeroes
+        rois          (1, :) cell    % 1 x n cell array of ROI objects representing poles or zeroes
+        snapTolerance (1, 1) double  % distance from the real axis at which snapping should occur
+        snapMode      (1 ,1) logical % boolean flag for whether points should snap to the real axis.
+                                        % snapMode is controlled directly by the poleZeroTool app.
     end
 
     methods
         function obj = Points()
             % Init function establishing arrays and cell arrays.
-            % obj.poles = [];
             obj.points = [];
-            % obj.poleRois = {};
             obj.rois = {};
             obj.snapMode = true;
             obj.snapTolerance = 0.20;
