@@ -19,9 +19,11 @@ classdef PointTracker < handle
 
     methods
         function obj = PointTracker()
-            % POINTTRACKER init function. Establishes Points objects for holding conjugate and non-conjugate points.
-            obj.points = Points();
-            obj.conjugates = Points();
+            % POINTTRACKER Init function. Establishes Points objects for holding conjugate and non-conjugate points.
+            obj.points.zeroes = Points();
+            obj.points.poles = Points();
+            obj.conjugates.zeroes = Points();
+            obj.conjugates.poles = Points();
             obj.zeroCount = 1;
             obj.poleCount = 1;
         end
@@ -54,7 +56,7 @@ classdef PointTracker < handle
             % GETPOLES Returns a 1 x n vector of all poles for conjugates and non-conjugates,
             % after removing NaN and duplicate values. This prevents double poles on the real axis due to
             % conjugate pairs, especially during snapping.
-            poles = [obj.points.poles, obj.conjugates.poles];
+            poles = [obj.points.poles.points, obj.conjugates.poles.points];
             poles(isnan(poles)) = [];
             poles = unique(poles);
         end
@@ -63,7 +65,7 @@ classdef PointTracker < handle
             % GETZEROES Returns a 1 x n vector of all zeroes for conjugates and non-conjugates,
             % after removing NaN and duplicate values. This prevents double zeroes on the real axis due to
             % conjugate pairs, especially during snapping.
-            zeroes = [obj.points.zeroes, obj.conjugates.zeroes];
+            zeroes = [obj.points.zeroes.points, obj.conjugates.zeroes.points];
             zeroes(isnan(zeroes)) = [];
             zeroes = unique(zeroes);
         end
@@ -74,17 +76,17 @@ classdef PointTracker < handle
             % the ROI object itself (added by PoleZeroApp.m)
             if roi.UserData.isConjugate
                 if roi.UserData.type == "zero"
-                    obj.conjugates.addZero(roi);
+                    obj.conjugates.zeroes.add(roi);
                 elseif roi.UserData.type == "pole"
-                    obj.conjugates.addPole(roi);
+                    obj.conjugates.poles.add(roi);
                 else
                     error("type must be either 'zero' or 'pole', not '%s'", type)
                 end
             else
                 if roi.UserData.type == "zero"
-                    obj.points.addZero(roi);
+                    obj.points.zeroes.add(roi);
                 elseif roi.UserData.type == "pole"
-                    obj.points.addPole(roi);
+                    obj.points.poles.add(roi);
                 else
                     error("type must be either 'zero' or 'pole', not '%s'", type)
                 end
@@ -99,17 +101,17 @@ classdef PointTracker < handle
             % type is either "zero" or "pole".
             if conjugate
                 if type == "zero"
-                    obj.conjugates.deleteZero(id);
+                    obj.conjugates.zeroes.delete(id);
                 elseif type == "pole"
-                    obj.conjugates.deletePole(id);
+                    obj.conjugates.poles.delete(id);
                 else
                     error("type must be either 'zero' or 'pole', not '%s'", type)
                 end
             else
                 if type == "zero"
-                    obj.points.deleteZero(id);
+                    obj.points.zeroes.delete(id);
                 elseif type == "pole"
-                    obj.points.deletePole(id);
+                    obj.points.poles.delete(id);
                 else
                     error("type must be either 'zero' or 'pole', not '%s'", type)
                 end
@@ -126,20 +128,20 @@ classdef PointTracker < handle
             if conjugate
                 if src.UserData.type == "zero"
                     idx = src.UserData.id;
-                    obj.conjugates.updateZero(idx, toComplex(src.Position .* flipSign), snap);
+                    obj.conjugates.zeroes.update(idx, toComplex(src.Position .* flipSign), snap);
                 elseif src.UserData.type == "pole"
                     idx = src.UserData.id;
-                    obj.conjugates.updatePole(idx, toComplex(src.Position .* flipSign), snap);
+                    obj.conjugates.poles.update(idx, toComplex(src.Position .* flipSign), snap);
                 else
                     error("type must be either 'zero' or 'pole', not '%s'", type)
                 end
             else
                 if src.UserData.type == "zero"
                     idx = src.UserData.id;
-                    obj.points.updateZero(idx, toComplex(src.Position .* flipSign), snap);
+                    obj.points.zeroes.update(idx, toComplex(src.Position .* flipSign), snap);
                 elseif src.UserData.type == "pole"
                     idx = src.UserData.id;
-                    obj.points.updatePole(idx, toComplex(src.Position .* flipSign), snap);
+                    obj.points.poles.update(idx, toComplex(src.Position .* flipSign), snap);
                 else
                     error("type must be either 'zero' or 'pole', not '%s'", type)
                 end

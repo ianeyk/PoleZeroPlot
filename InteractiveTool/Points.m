@@ -1,106 +1,67 @@
 classdef Points < handle
-    % Points Class for storing lists of points and zeroes.
-    %   Also stores ROI objects for points and zeroes and can manipulate them (for example,
-    %   to change the location of an ROI when its conjugate pair is changed).
+    % Points Class for storing lists of points or zeroes.
+    %   Also stores ROI objects and can manipulate them (for example, to change the location of an ROI
+    %   when its conjugate pair is changed).
 
     properties
-        zeroes        % 1 x n array of complex numbers representing zeroes
-        poles         % 1 x m array of complex numbers representing poles
-        zeroRois      % 1 x n cell array of ROI objects representing zeroes
-        poleRois      % 1 x m cell array of ROI objects representing poles
+        points        % 1 x n array of complex numbers representing poles or zeroes
+        rois          % 1 x n cell array of ROI objects representing poles or zeroes
         snapMode      % boolean flag for whether points should snap to the real axis. This is controlled
-                        % directly by the poleZeroTool app.
+                      % directly by the poleZeroTool app.
         snapTolerance % distance from the real axis at which snapping should occur
     end
 
     methods
         function obj = Points()
             % Init function establishing arrays and cell arrays.
-            obj.poles = [];
-            obj.zeroes = [];
-            obj.poleRois = {};
-            obj.zeroRois = {};
+            % obj.poles = [];
+            obj.points = [];
+            % obj.poleRois = {};
+            obj.rois = {};
             obj.snapMode = true;
-            obj.snapTolerance = 0.15;
+            obj.snapTolerance = 0.20;
         end
 
-        function addZero(obj, roi)
-            % ADDZERO Takes an ROI object that has just been created. Stores the ROI in zeroRois,
-            % and stores the complex position in zeroes. Also handles snapping, if in effect.
+        function add(obj, roi)
+            % ADD Takes an ROI object that has just been created. Stores the ROI in rois,
+            % and stores the complex position in points. Also handles snapping, if in effect.
             roi.Position = obj.snapToRealAxis(roi.Position);
-            obj.zeroes(end + 1) = toComplex(roi.Position);
-            obj.zeroRois{end + 1} = roi;
+            obj.points(end + 1) = toComplex(roi.Position);
+            obj.rois{end + 1} = roi;
         end
 
-        function addPole(obj, roi)
-            % ADDPOLE Takes an ROI object that has just been created. Stores the ROI in poleRois,
-            % and stores the complex position in poles. Also handles snapping, if in effect.
-            roi.Position = obj.snapToRealAxis(roi.Position);
-            obj.poles(end + 1) = toComplex(roi.Position);
-            obj.poleRois{end + 1} = roi;
-        end
-
-        function deleteZero(obj, idx)
-            % DELETEZERO Called after an ROI has been deleted.
+        function delete(obj, idx)
+            % DELETE Called after an ROI has been deleted.
             % Sets the value of the complex position and the ROI to NaN to preserve ordering.
-            obj.zeroes(idx) = NaN;
+            obj.points(idx) = NaN;
             try
-                delete(obj.zeroRois{idx});
+                delete(obj.rois{idx});
             catch
                 % pass
             end
-            obj.zeroRois{idx} = NaN;
+            obj.rois{idx} = NaN;
         end
 
-        function deletePole(obj, idx)
-            % DELETEPOLE Called after an ROI has been deleted.
-            % Sets the value of the complex position and the ROI to NaN to preserve ordering.
-            obj.poles(idx) = NaN;
-            try
-                delete(obj.poleRois{idx});
-            catch
-                % pass
-            end
-            obj.poleRois{idx} = NaN;
-        end
-
-        function updateZero(obj, idx, newValue, snap)
-            % UPDATEZERO Called when an ROI is being moved. Updates the complex position of the zero and
-            % changes the Position property of the ROI to manipulate the other point in the conjugate pair.
+        function update(obj, idx, newValue, snap)
+            % UPDATE Called when an ROI is being moved. Updates the complex position and
+            % changes the Position property of the ROI to manipulate the conjugate pair.
             % snap acts as an override for snapMode, so that snapping only occurrs after an ROI object has been released.
 
             % The complex position gets snapped no matter what, to preserve continuity in the timeDomainResponse plot
             nonRoiValue = obj.snapToRealAxis(newValue);
+
+            % The ROI position is only snapped at the end of movement (when snap == true),
+            % to allow the ROI to leave the real axis
             if snap
-                % The ROI position is only snapped at the end of movement (when snap == true),
-                % to allow the ROI to leave the real axis
                 roiValue = obj.snapToRealAxis(newValue);
             else
                 roiValue = newValue;
             end
-            if ~isnan(obj.zeroes(idx))
-                obj.zeroes(idx) = nonRoiValue;
-                obj.zeroRois{idx}.Position = [real(roiValue), imag(roiValue)];
-            end
-        end
 
-        function updatePole(obj, idx, newValue, snap)
-            % UPDATEPOLE Called when an ROI is being moved. Updates the complex position of the pole and
-            % changes the Position property of the ROI to manipulate the other point in the conjugate pair.
-            % snap acts as an override for snapMode, so that snapping only occurrs after an ROI object has been released.
-
-            % The complex position gets snapped no matter what, to preserve continuity in the timeDomainResponse plot
-            nonRoiValue = obj.snapToRealAxis(newValue);
-            if snap
-                % The ROI position is only snapped at the end of movement (when snap == true),
-                % to allow the ROI to leave the real axis
-                roiValue = obj.snapToRealAxis(newValue);
-            else
-                roiValue = newValue;
-            end
-            if ~isnan(obj.poles(idx))
-                obj.poles(idx) = nonRoiValue;
-                obj.poleRois{idx}.Position = [real(roiValue), imag(roiValue)];
+            % Update the complex position and the ROI
+            if ~isnan(obj.points(idx))
+                obj.points(idx) = nonRoiValue;
+                obj.rois{idx}.Position = [real(roiValue), imag(roiValue)];
             end
         end
 
