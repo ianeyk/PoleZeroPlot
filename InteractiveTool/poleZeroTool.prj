@@ -1,5 +1,5 @@
 <deployment-project plugin="plugin.apptool" plugin-version="1.0">
-  <configuration build-checksum="2317825380" file="C:\dev\git\PoleZeroPlot\InteractiveTool\poleZeroTool.prj" location="C:\dev\git\PoleZeroPlot\InteractiveTool" name="poleZeroTool" target="target.mlapps" target-name="Package App">
+  <configuration build-checksum="1886179038" file="C:\dev\git\PoleZeroPlot\InteractiveTool\poleZeroTool.prj" location="C:\dev\git\PoleZeroPlot\InteractiveTool" name="poleZeroTool" target="target.mlapps" target-name="Package App">
     <param.appname>poleZeroTool</param.appname>
     <param.authnamewatermark>Ian Eykamp</param.authnamewatermark>
     <param.email>ieykamp@olin.edu</param.email>
@@ -8,7 +8,7 @@
     <param.icons />
     <param.summary>GUI for plotting the time response for a pole-zero plot in the s-domain</param.summary>
     <param.description />
-    <param.screenshot>C:\Users\ieykamp\AppData\Local\Temp\tpec2bf345_b0cd_43b4_ae00_0283853b6e01.png</param.screenshot>
+    <param.screenshot>C:\Users\ieykamp\AppData\Local\Temp\tpfb9ac0c4_73a4_4611_adce_575d384873db.png</param.screenshot>
     <param.version>1.3</param.version>
     <param.products.name />
     <param.products.id />
