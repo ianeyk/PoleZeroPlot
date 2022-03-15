@@ -1,5 +1,5 @@
 <deployment-project plugin="plugin.apptool" plugin-version="1.0">
-  <configuration build-checksum="2457154902" file="C:\dev\git\PoleZeroPlot\InteractiveTool\poleZeroTool.prj" location="C:\dev\git\PoleZeroPlot\InteractiveTool" name="poleZeroTool" target="target.mlapps" target-name="Package App">
+  <configuration build-checksum="2317825380" file="C:\dev\git\PoleZeroPlot\InteractiveTool\poleZeroTool.prj" location="C:\dev\git\PoleZeroPlot\InteractiveTool" name="poleZeroTool" target="target.mlapps" target-name="Package App">
     <param.appname>poleZeroTool</param.appname>
     <param.authnamewatermark>Ian Eykamp</param.authnamewatermark>
     <param.email>ieykamp@olin.edu</param.email>
@@ -8,8 +8,8 @@
     <param.icons />
     <param.summary>GUI for plotting the time response for a pole-zero plot in the s-domain</param.summary>
     <param.description />
-    <param.screenshot>C:\Users\ieykamp\AppData\Local\Temp\tp309e18ee_d576_4099_bdd0_c8f8cd87b280.png</param.screenshot>
-    <param.version>1.2</param.version>
+    <param.screenshot>C:\Users\ieykamp\AppData\Local\Temp\tpec2bf345_b0cd_43b4_ae00_0283853b6e01.png</param.screenshot>
+    <param.version>1.3</param.version>
     <param.products.name />
     <param.products.id />
     <param.products.version />
@@ -30,10 +30,10 @@
       <file>${PROJECT_ROOT}\poleZeroTool.mlapp</file>
     </fileset.main>
     <fileset.depfun>
-      <file>${PROJECT_ROOT}\outOfBounds.m</file>
       <file>${PROJECT_ROOT}\Points.m</file>
       <file>${PROJECT_ROOT}\PointTracker.m</file>
       <file>${PROJECT_ROOT}\PoleZeroApp.m</file>
+      <file>${PROJECT_ROOT}\SnapModeStaticData.m</file>
       <file>${PROJECT_ROOT}\toComplex.m</file>
     </fileset.depfun>
     <fileset.resources />
