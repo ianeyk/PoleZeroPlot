@@ -5,11 +5,10 @@ classdef Points < handle
     %   ROI objects to change their location when a conjugate point is changed.
 
     properties
-        points        (1, :) double  % 1 x n array of complex numbers representing poles or zeroes
-        rois          (1, :) cell    % 1 x n cell array of ROI objects representing poles or zeroes
-        snapTolerance (1, 1) double  % distance from the real axis at which snapping should occur
-        snapMode      (1 ,1) logical % boolean flag for whether points should snap to the real axis.
-                                        % snapMode is controlled directly by the poleZeroTool app.
+        points   (1, :) double  % 1 x n array of complex numbers representing poles or zeroes
+        rois     (1, :) cell    % 1 x n cell array of ROI objects representing poles or zeroes
+        snapMode (1, 1) SnapModeStaticData % static class that holds snapping mode flag and threshold
+                                           % snapMode is controlled directly by the poleZeroTool app.
     end
 
     methods
@@ -17,8 +16,6 @@ classdef Points < handle
             % Init function establishing arrays and cell arrays.
             obj.points = [];
             obj.rois = {};
-            obj.snapMode = true;
-            obj.snapTolerance = 0.20;
         end
 
         function add(obj, roi)
@@ -70,7 +67,7 @@ classdef Points < handle
 
             % handle Position form [re, im]
             if length(in) == 2
-                if obj.snapMode & abs(in(2)) < obj.snapTolerance
+                if obj.snapMode.mode & abs(in(2)) < obj.snapMode.tolerance
                     out = [in(1), 0];
                 else
                     out = in;
@@ -78,7 +75,7 @@ classdef Points < handle
 
             % handle complex form re + im(i)
             elseif length(in) == 1
-                if obj.snapMode & abs(imag(in)) < obj.snapTolerance
+                if obj.snapMode.mode & abs(imag(in)) < obj.snapMode.tolerance
                     out = real(in);
                 else
                     out = in;
